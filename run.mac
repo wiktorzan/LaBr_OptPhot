@@ -1,0 +1,7 @@
+## Particle type, position, energy...
+/gps/particle gamma
+/gps/number 1
+/gps/pos/centre  0 0 -4.0  cm
+/gps/energy 5.0 MeV
+/gps/ang/type iso
+/run/beamOn 10

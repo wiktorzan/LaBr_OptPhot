@@ -75,7 +75,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   G4StepPoint* thePostPoint = aStep->GetPostStepPoint();
   G4TouchableHandle theTouchable = thePrePoint->GetTouchableHandle();
 
-  const G4String ProcessName = aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+  const G4String processName = aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
   const G4String particleName = aStep->GetTrack()->GetDefinition()->GetParticleName();
   G4double EdepStep = aStep->GetTotalEnergyDeposit();
 
@@ -85,17 +85,17 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     if (particleName == "e-") {pType = 1;}
     if (particleName == "e+") {pType = 2;}
 
-    if (ProcessName == "compt") {pName = 0;}
-    if (ProcessName == "phot") {pName = 1;}
-    if (ProcessName == "conv") {pName = 2;}
-    if (ProcessName == "eIoni") {pName = 3;}
-    if (ProcessName == "hIoni") {pName = 4;}
-    if (ProcessName == "msc") {pName = 5;}
-    if (ProcessName == "Scintillation") {pName = 6;}
-    if (ProcessName == "Cerenkov") {pName = 7;}
-    if (ProcessName == "eBrem") {pName = 8;}
-    if (ProcessName == "Rayl") {pName = 9;}
-    if (ProcessName == "Transportation") {pName = 10;}
+    if (processName == "compt") {pName = 0;}
+    if (processName == "phot") {pName = 1;}
+    if (processName == "conv") {pName = 2;}
+    if (processName == "eIoni") {pName = 3;}
+    if (processName == "hIoni") {pName = 4;}
+    if (processName == "msc") {pName = 5;}
+    if (processName == "Scintillation") {pName = 6;}
+    if (processName == "Cerenkov") {pName = 7;}
+    if (processName == "eBrem") {pName = 8;}
+    if (processName == "Rayl") {pName = 9;}
+    if (processName == "Transportation") {pName = 10;}
 
     postPosX = thePostPoint->GetPosition().getX();
     postPosY = thePostPoint->GetPosition().getY();
@@ -106,7 +106,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     CopyNo = theTouchable->GetCopyNumber();
     Gtime = thePostPoint->GetGlobalTime();
     fillTree=1;
-  } else if (currentPhysicalName == "Physi_SiPM" && ProcessName == "OpAbsorption") {
+  } else if (currentPhysicalName == "Physi_SiPM" && processName == "OpAbsorption") {
     pType = 10;
     pName = 20;
     postPosX = thePostPoint->GetPosition().getX();

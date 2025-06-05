@@ -192,12 +192,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   SiPM_Y = 6.0*mm;
   SiPM_Z = 0.5*mm;
 
-  BGO_X = 06.0*mm; //??
-  BGO_Y = 06.0*mm; //??
+  BGO_X = 6.0*mm;
+  BGO_Y = 6.0*mm;
   BGO_Z = 60.0*mm;
 
-  G4double BGOW_X = 06.1*mm; //??
-  G4double BGOW_Y = 06.1*mm; //??
+  G4double BGOW_X = 6.1*mm;
+  G4double BGOW_Y = 6.1*mm;
   G4double BGOW_Z = 60.1*mm;
 
 //Reflector
@@ -217,7 +217,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4LogicalVolume* lhousing_al = new G4LogicalVolume(housing_al, AluR, "lhousing");
   G4VPhysicalVolume* physihousing_al = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "physichousing", lhousing_al, physiWorld, false, 0);
 
-  G4Tubs* housing_alface = new G4Tubs("housingface", 0.0*cm ,Alhos_Rmax, (0.05*cm)/2, StartPhi, DeltaPhi);
+  G4Tubs* housing_alface = new G4Tubs("housingface", 0.0*cm, Alhos_Rmax, (0.05*cm)/2, StartPhi, DeltaPhi);
   G4LogicalVolume* lhousing_alface = new G4LogicalVolume(housing_alface, AluR, "lhousingface");
   G4VPhysicalVolume* physihousing_alface = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + 0.1*cm + ((0.05*cm)/2)),
                                  "reflectorface", lreflector_alface, physiWorld, false, 0);

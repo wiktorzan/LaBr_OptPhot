@@ -86,23 +86,23 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   //------------------------------------------------------
   // Optical properties
   //------------------------------------------------------
-  const G4int nEntries = 2;
-  G4double PhotonEnergy[nEntries] = {2.49*eV, 3.76*eV};
-  G4double MgORefractionIndex[nEntries] = {1.0, 1.0};
-  G4double MgOAbsorptionLength[nEntries] = {1.0E-9*m, 1.0E-9*m};
+  const G4int nEntries = 4;
+  G4double PhotonEnergy[nEntries] = {2.49*eV, 2.75*eV, 3.44*eV, 3.76*eV};
+  G4double MgORefractionIndex[nEntries] = {1.74, 1.75, 1.77, 1.78};
+  G4double MgOAbsorptionLength[nEntries] = {8.0*cm, 7.5*cm, 6.25*cm, 5.0*cm}; // From abs coeff 0.2 -> 0.05 cm-1
 
   G4MaterialPropertiesTable* MgOMPT = new G4MaterialPropertiesTable();
   MgOMPT->AddProperty("RINDEX", PhotonEnergy, MgORefractionIndex, nEntries);
   MgOMPT->AddProperty("ABSLENGTH", PhotonEnergy, MgOAbsorptionLength, nEntries);
   MgO->SetMaterialPropertiesTable(MgOMPT);
 
-  G4double LaBr3RefractionIndex[nEntries] = {2.0, 2.0,};
-  G4double LaBr3AbsorptionLength[nEntries] = {50.*cm, 50.*cm};
-  G4double ScintFast[nEntries] = {1.00, 0.97};
+  G4double LaBr3RefractionIndex[nEntries] = {2.1, 2.27, 2.3, 2.4}; // 10.1109/TNS.2012.2193597
+  G4double LaBr3AbsorptionLength[nEntries] = {19.*cm, 16.*cm, 10.*cm, 0.1*cm}; // 10.1109/TNS.2012.2193597
+  G4double ScintFast[nEntries] = {1.00, 1.00, 0.99, 0.97};
 
   G4MaterialPropertiesTable* LaBr3MPT = new G4MaterialPropertiesTable();
   LaBr3MPT->AddProperty("RINDEX", PhotonEnergy, LaBr3RefractionIndex, nEntries);
-  LaBr3MPT->AddProperty("ABSLENGTH", PhotonEnergy, LaBr3AbsorptionLength,nEntries);
+  LaBr3MPT->AddProperty("ABSLENGTH", PhotonEnergy, LaBr3AbsorptionLength, nEntries);
   LaBr3MPT->AddProperty("SCINTILLATIONCOMPONENT1", PhotonEnergy, ScintFast, nEntries);
   LaBr3MPT->AddConstProperty("SCINTILLATIONYIELD", 73./keV);
   LaBr3MPT->AddConstProperty("RESOLUTIONSCALE", 1.);
@@ -110,48 +110,45 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   LaBr3MPT->AddConstProperty("SCINTILLATIONYIELD1", 1.);
   LaBr3->SetMaterialPropertiesTable(LaBr3MPT);
 
-  G4double BGO_RI[nEntries] = {2.15, 2.15};
-  G4double BGO_AL[nEntries] = {50.*cm, 50.*cm};
+  G4double BGO_RI[nEntries] = {2.14, 2.17, 2.27, 2.33}; // 10.1364/AO.35.003562
+  G4double BGO_AL[nEntries] = {10.*cm, 8.5*cm, 7.8*cm, 3.0*cm};
+  G4double BGO_Fast[nEntries] = {1.00, 0.99, 0.97, 0.95};
 
   G4MaterialPropertiesTable* BGO_MPT = new G4MaterialPropertiesTable();
   BGO_MPT->AddProperty("RINDEX", PhotonEnergy, BGO_RI, nEntries);
   BGO_MPT->AddProperty("ABSLENGTH", PhotonEnergy, BGO_AL, nEntries);
-
-  G4double BGO_Energy[nEntries] = {3.08*eV, 3.13*eV};
-  G4double BGO_Fast[nEntries] = {1.00, 0.95};
-
-  BGO_MPT->AddProperty("SCINTILLATIONCOMPONENT1", BGO_Energy, BGO_Fast, nEntries);
+  BGO_MPT->AddProperty("SCINTILLATIONCOMPONENT1", PhotonEnergy, BGO_Fast, nEntries);
   BGO_MPT->AddConstProperty("SCINTILLATIONYIELD", 10.0/keV);
   BGO_MPT->AddConstProperty("RESOLUTIONSCALE", 1.);
   BGO_MPT->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 20.*ns);
   BGO_MPT->AddConstProperty("SCINTILLATIONYIELD1", 1.);
   BGOmat->SetMaterialPropertiesTable(BGO_MPT);
 
-  G4double QuartzRefractionIndex[nEntries] = {1.47, 1.47};
-  G4double QuartzAbsorptionLength[nEntries] = {3.0*cm, 3.0*cm};
+  G4double QuartzRefractionIndex[nEntries] = {1.462, 1.465, 1.47, 1.48}; //https://refractiveindex.info/?shelf=main&book=SiO2&page=Malitson
+  G4double QuartzAbsorptionLength[nEntries] = {1E7*cm, 1E7*cm, 1E7*cm, 1E7*cm};
 
   G4MaterialPropertiesTable* QuartzMPT = new G4MaterialPropertiesTable();
   QuartzMPT->AddProperty("RINDEX", PhotonEnergy, QuartzRefractionIndex, nEntries);
   QuartzMPT->AddProperty("ABSLENGTH", PhotonEnergy, QuartzAbsorptionLength, nEntries);
   Quartz->SetMaterialPropertiesTable(QuartzMPT);
 
-  G4double Optgrease_RI[nEntries] = {1.46, 1.46};
-  G4double Optgrease_AL[nEntries] = {400.0*cm, 400.0*cm};
+  G4double Optgrease_RI[nEntries] = {1.46, 1.46, 1.46, 1.46};
+  G4double Optgrease_AL[nEntries] = {400.0*cm, 400.0*cm, 400.0*cm, 400.0*cm};
 
   G4MaterialPropertiesTable* Optgrease_MPT = new G4MaterialPropertiesTable();
   Optgrease_MPT->AddProperty("RINDEX", PhotonEnergy, Optgrease_RI, nEntries);
   Optgrease_MPT->AddProperty("ABSLENGTH", PhotonEnergy, Optgrease_AL, nEntries);
   Optgrease->SetMaterialPropertiesTable(Optgrease_MPT);
 
-  G4double SiPM_RI[nEntries] = {1.51, 1.51};
-  G4double SiPM_AL[nEntries] = {0.000001*cm, 0.000001*cm};
+  G4double SiPM_RI[nEntries] = {4.32, 5.57, 6.5, 5.1};
+  G4double SiPM_AL[nEntries] = {0.000001*cm, 0.000001*cm, 0.000001*cm, 0.000001*cm};
 
   G4MaterialPropertiesTable* SiPM_MPT = new G4MaterialPropertiesTable();
   SiPM_MPT->AddProperty("RINDEX", PhotonEnergy, SiPM_RI, nEntries);
   SiPM_MPT->AddProperty("ABSLENGTH", PhotonEnergy, SiPM_AL, nEntries);
   Optmat->SetMaterialPropertiesTable(SiPM_MPT);
 
-  G4double vacRefractionIndex[nEntries] = {1.0, 1.0};
+  G4double vacRefractionIndex[nEntries] = {1.0, 1.0, 1.0, 1.0};
 
   G4MaterialPropertiesTable* vacMPT = new G4MaterialPropertiesTable();
   vacMPT->AddProperty("RINDEX",PhotonEnergy,vacRefractionIndex, nEntries);

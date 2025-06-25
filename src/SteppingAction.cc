@@ -43,6 +43,9 @@ void SteppingAction::InitOutput()
   tout->Branch("Det", &Det, "Det/I");
   tout->Branch("CopyNo", &CopyNo, "CopyNo/I");
   tout->Branch("Gtime", &Gtime, "Gtime/D");
+  tout->Branch("momentumX", &momentumX, "momentumX/D");
+  tout->Branch("momentumY", &momentumY, "momentumY/D");
+  tout->Branch("momentumZ", &momentumZ, "momentumZ/D");
 }
 
 SteppingAction::~SteppingAction()
@@ -79,6 +82,8 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4String particleName = aStep->GetTrack()->GetDefinition()->GetParticleName();
   G4double EdepStep = aStep->GetTotalEnergyDeposit();
 
+  G4ThreeVector momentumVec = aStep->GetTrack()->GetMomentum();
+
   G4bool fillTree =0;
   if (currentPhysicalName == "Physi_LaBr3" && particleName != "opticalphoton") {
     if (particleName == "gamma") {pType = 0;}
@@ -105,6 +110,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     KE = aStep->GetTrack()->GetVertexKineticEnergy();
     CopyNo = theTouchable->GetCopyNumber();
     Gtime = thePostPoint->GetGlobalTime();
+    momentumX = momentumVec.getX();
+    momentumY = momentumVec.getY();
+    momentumZ = momentumVec.getZ();
     fillTree=1;
   } else if (currentPhysicalName == "Physi_SiPM" && processName == "OpAbsorption") {
     pType = 10;
@@ -144,4 +152,7 @@ void SteppingAction::InitVar()
   postPosZ = -999;
   Gtime = -999;
   counter = 0;
+  momentumX = -999;
+  momentumY = -999;
+  momentumZ = -999;
 }

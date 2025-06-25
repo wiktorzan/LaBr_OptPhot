@@ -54,6 +54,10 @@ private:
   G4int CopyNo;
     
   G4int counter;
+
+  G4double momentumX;
+  G4double momentumY;
+  G4double momentumZ;
 };
 
 #endif

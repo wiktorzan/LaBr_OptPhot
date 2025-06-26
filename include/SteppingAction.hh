@@ -16,7 +16,7 @@ class EventAction;
 class SteppingAction : public G4UserSteppingAction
 {
 public:
-  SteppingAction(G4int*);
+  SteppingAction(G4int*, G4String nameAdd);
   ~SteppingAction();
 
   void UserSteppingAction(const G4Step*);

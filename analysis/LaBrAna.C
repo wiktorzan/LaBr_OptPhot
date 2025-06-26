@@ -15,6 +15,7 @@
 #include "TSystemDirectory.h"
 #include "TSystemFile.h"
 #include "TRandom3.h"
+#include "TVector3.h"
 #include "TDatime.h"
 #include "TNtuple.h"
 #include "TObject.h"
@@ -26,8 +27,10 @@
 #include "TMath.h"
 #include "TTree.h"
 
+#include "Histo_Collection.h"
+
 bool FileCheck(const std::string& NameOfFile);
-void AnalyzeFile(std::string NameOfFile);
+void AnalyzeFile(std::string NameOfFile, HistCollection histo);
 
 int main(int argc, char* argv[])
 {
@@ -38,6 +41,10 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+  Double_t minMaxDim = 30, binSizeSmall = 1;// in mm
+  HistCollection hist;
+  hist.CreatePositionHistos(minMaxDim, binSizeSmall);
+  TString outputName = "";
   std::string fileOrPattern = argv[1];
 
 //Analysis
@@ -100,11 +107,12 @@ int main(int argc, char* argv[])
       AnalyzeFile(filesToAnalyze.at(fileNo), hist);
     }
   }
+  hist.SaveHistos(outputName);
 
   return 0;
 }
 
-void AnalyzeFile(std::string NameOfFile)
+void AnalyzeFile(std::string NameOfFile, HistCollection hist)
 {
   TString fileName = NameOfFile;
   std::cout << " Reading file " << fileName << std::endl;
@@ -130,9 +138,25 @@ void AnalyzeFile(std::string NameOfFile)
 
   Int_t nentries = (Int_t)ntuple->GetEntries();
 
-  int currentEvent = -1;
+  Int_t currentEvent = -1;
+  Double_t gammaZ = -35;
   for (Int_t i=0; i<nentries; i++) {
     ntuple->GetEntry(i);
+
+    if (pType == 0) {
+      gammaZ = posZ;
+    }
+
+    if (evNr == currentEvent) {
+      TVector3 pos(posX, posY, posZ);
+      hist.FillPositionHisto(pos, HistoLabel::cAll);
+      if (Det == 22) {
+        TVector3 pos2(posX, posY, gammaZ);
+        hist.FillPositionHisto(pos2, HistoLabel::cGZH_XY);
+      }
+    } else {
+      currentEvent = evNr;
+    }
   }
 }
 

@@ -3,5 +3,6 @@
 /gps/number 1
 /gps/pos/centre  0 0 -4.0 cm
 /gps/energy 0.5 MeV
-/gps/ang/type iso
+/gps/direction 0 0 1
+#/gps/ang/type iso
 /run/beamOn 1000

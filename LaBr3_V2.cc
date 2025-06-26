@@ -39,7 +39,9 @@
 
 #include "Randomize.hh"
 
-#include "time.h"
+#include <sstream>
+#include <unistd.h>
+#include <chrono>
 
 int main(int argc,char** argv) {
  
@@ -49,10 +51,20 @@ int main(int argc,char** argv) {
   }
 
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
-  long seeds;
-  time_t systime = time(NULL);
-  seeds = (long) systime;
-  G4Random::setTheSeed(seeds);
+
+  int mask = 01001010;
+  using namespace std::chrono;
+  system_clock::time_point now = system_clock::now();
+  long seed = (unsigned int)(system_clock::to_time_t(now)) * 677 * ::getpid();
+  G4Random::setTheSeed(seed);
+
+  std::time_t tt = std::chrono::system_clock::to_time_t(now);
+  std::tm tm = *std::gmtime(&tt); //GMT (UTC)
+  std::stringstream ss;
+  const std::string& format = "%m%d%H%M%S";
+  ss << std::put_time( &tm, format.c_str() );
+
+  std::string seedAndTime = ss.str() + "_" + std::to_string(seed);
   
   G4RunManager * runManager = new G4RunManager;
   runManager->SetUserInitialization(new DetectorConstruction);
@@ -63,7 +75,7 @@ int main(int argc,char** argv) {
   runManager->SetUserAction(new PrimaryGeneratorAction);
   runManager->SetUserAction(new RunAction);
   runManager->SetUserAction(new EventAction(&evNumber));
-  runManager->SetUserAction(new SteppingAction(&evNumber));
+  runManager->SetUserAction(new SteppingAction(&evNumber, seedAndTime));
   
   runManager->Initialize(); 
   G4UImanager* UImanager = G4UImanager::GetUIpointer();

@@ -22,7 +22,7 @@
 
 using namespace std;	 
 
-SteppingAction::SteppingAction(G4int *evN) : G4UserSteppingAction(), fout(nullptr), tout(nullptr), foutName("Output.root")
+SteppingAction::SteppingAction(G4int *evN, G4String nameAdd) : G4UserSteppingAction(), fout(nullptr), tout(nullptr), foutName("Output_" + nameAdd + ".root")
 { 
   evNr = evN;
   counter = 0;
@@ -138,21 +138,21 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
 void SteppingAction::InitVar()
 {
   eventNr = -999;
-  pType = -999;
-  pName = -999;
+  pType = -9;
+  pName = -9;
   Edep = -999;
-  CopyNo = -999;
-  nAbsPhotons = -999;
-  EdepInSiPM = -999;
+  CopyNo = -9;
+  nAbsPhotons = -9;
+  EdepInSiPM = -9;
   prePosX = -999;
   prePosY = -999;
   prePosZ = -999;
   postPosX = -999;
   postPosY = -999;
   postPosZ = -999;
-  Gtime = -999;
+  Gtime = -9;
   counter = 0;
-  momentumX = -999;
-  momentumY = -999;
-  momentumZ = -999;
+  momentumX = -9;
+  momentumY = -9;
+  momentumZ = -9;
 }

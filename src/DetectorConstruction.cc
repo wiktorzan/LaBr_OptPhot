@@ -14,6 +14,7 @@
 #include "G4Element.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
+#include "G4LogicalSkinSurface.hh"
 
 using namespace CLHEP;
 
@@ -358,7 +359,21 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   G4LogicalBorderSurface* RefCryfaceSurface = new G4LogicalBorderSurface("RefCryfaceSurface",physiLaBr3,physireflector_alface,faceLaBr );
   G4OpticalSurface* BGOAL =  new G4OpticalSurface("BGO_Al");
-  BGOAL->SetType(dielectric_dielectric);
+  BGOAL->SetType(dielectric_metal);
+  BGOAL->SetModel(unified);
+  BGOAL->SetFinish(groundfrontpainted);
+  G4double reflectivity_metal[2] = {0.95, 0.95}; // np. 95% odbicia
+  G4double efficiency_metal[2] = {0.0, 0.0};     // 0 = nie jest detektorem
+  G4MaterialPropertiesTable* metalMPT = new G4MaterialPropertiesTable();
+  metalMPT->AddProperty("REFLECTIVITY", energy, reflectivity_metal, 2);
+  metalMPT->AddProperty("EFFICIENCY", energy, efficiency_metal, 2);
+  BGOAL->SetMaterialPropertiesTable(metalMPT);
+  new G4LogicalSkinSurface("BGO_Al", lBGO, BGOAL);
+
+  // // BGOAL->SetModel(unified);
+  // // BGOAL->SetFinish(groundfrontpainted);
+  // G4LogicalBorderSurface* BGOALSurface = new G4LogicalBorderSurface("BGO_Al",physiBGO,physiBGOW,BGOAL);
+  // BGOAL->SetMaterialPropertiesTable(SMPT);
 
 //------------------------------------------------------
 // visualization attributes

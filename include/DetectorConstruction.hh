@@ -5,6 +5,7 @@
 #include "G4VUserDetectorConstruction.hh"
 
 class G4VPhysicalVolume;
+class G4Material;
 
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
@@ -13,8 +14,12 @@ public:
   ~DetectorConstruction();
 
   G4VPhysicalVolume* Construct();
+  void ConstructMaterials();
+  void ConstructDet();
   
 private:
+  G4VPhysicalVolume* physiWorld;
+
   G4double WorldSize;
   G4double LaBr3Rmin;
   G4double LaBr3Rmax;
@@ -40,6 +45,20 @@ private:
   G4double BGO_Y;
   G4double BGO_Z;
   G4double SP_X[52], SP_Y[52], SP_Z[52];
+
+  //Materials
+  G4Material* fVacuum;
+  G4Material* fTefMat;
+  G4Material* fAluR;
+  G4Material* fQuartz;
+  G4Material* fOptGrease;
+  G4Material* fOptMat;
+  G4Material* fBGOMat;
+  G4Material* fLaBr3;
+
+  
+
+
 };
 
 #endif

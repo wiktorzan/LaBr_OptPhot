@@ -126,7 +126,19 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     CopyNo =  theTouchable->GetCopyNumber();
     Gtime = thePostPoint->GetGlobalTime();
     fillTree=1;
-  } else
+  } else if(currentPhysicalName == "BGO_SiPM" && processName == "OpAbsorption") {
+    pType = 10;
+    pName = 20;
+    postPosX = thePostPoint->GetPosition().getX();
+    postPosY = thePostPoint->GetPosition().getY();
+    postPosZ = thePostPoint->GetPosition().getZ();
+    Det = 23;
+    Edep = EdepStep;
+    KE = aStep->GetTrack()->GetVertexKineticEnergy();
+    CopyNo =100 + theTouchable->GetCopyNumber(1);  //CopyNo kryształu BGOW + 100
+    Gtime = thePostPoint->GetGlobalTime();
+    fillTree=1;
+  }else
     fillTree=0;
 
   if (fillTree) {

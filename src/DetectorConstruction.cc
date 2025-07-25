@@ -324,14 +324,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     rotationMatrix->rotateZ((j)*12.857*deg);
     physiBGOW = new G4PVPlacement(rotationMatrix, G4ThreeVector(std::sin((j)*12.857*deg)*31.25*mm, std::cos((j)*12.857*deg)*31.25*mm, 0.*cm),
                     "BGOW", lBGOW, physiWorld, false, j);
-  }
-
+    // new G4PVPlacement(rotationMatrix, G4ThreeVector(std::sin((j)*12.857*deg)*31.25*mm, std::cos((j)*12.857*deg)*31.25*mm, BGOW_Z/2 + SiPM_Z/2),
+    //                       "BGO_SiPM", lSipm, physiWorld, false, 100+j); //za BGO            
+  }       
+  new G4PVPlacement(0, G4ThreeVector(0,0, BGOW_Z/2 - SiPM_Z/2),
+                          "BGO_SiPM", lSipm, physiBGOW, false, 100);
 //BGO
 
   G4Box* BGO_bar = new G4Box("BGO", BGO_X/2, BGO_Y/2, BGO_Z/2);
   G4LogicalVolume* lBGO = new G4LogicalVolume(BGO_bar, BGOmat, "BGO");
   G4VPhysicalVolume* physiBGO = new G4PVPlacement(0, G4ThreeVector(std::sin((0)*12.857*deg)*0.*mm, std::cos((0)*12.857*deg)*0.*mm, 0.*cm),
                           "BGO", lBGO, physiBGOW, false, 0);
+
 
 //------------------------------------------------------
 // Surfaces and boundary processes

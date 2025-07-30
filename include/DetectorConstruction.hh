@@ -5,6 +5,8 @@
 #include "G4VUserDetectorConstruction.hh"
 
 class G4VPhysicalVolume;
+class ICRP110PhantomMaterial_Female;
+class ICRP110PhantomMaterial_Male;
 class G4Material;
 
 class DetectorConstruction : public G4VUserDetectorConstruction
@@ -16,9 +18,11 @@ public:
   G4VPhysicalVolume* Construct();
   void ConstructMaterials();
   void ConstructDet();
+  void ConstructPhantom();
   
 private:
-  G4VPhysicalVolume* physiWorld;
+  G4LogicalVolume* flogicWorld;
+  G4VPhysicalVolume* fphysiWorld;
 
   G4double WorldSize;
   G4double LaBr3Rmin;
@@ -45,6 +49,29 @@ private:
   G4double BGO_Y;
   G4double BGO_Z;
   G4double SP_X[52], SP_Y[52], SP_Z[52];
+
+  //Phantom parameters
+  G4String fSex;
+  G4String fSection;
+
+  ICRP110PhantomMaterial_Female* fMaterial_Female;
+  ICRP110PhantomMaterial_Male* fMaterial_Male;
+
+  void ReadPhantomData(const G4String& sex, const G4String& section);
+  void ReadPhantomDataFile(const G4String& sex, const G4String& fname, G4int);
+
+  G4int fNVoxelX;
+  G4int fNVoxelY; 
+  G4int fNVoxelZ;
+  G4double fVoxelHalfDimX;
+  G4double fVoxelHalfDimY;
+  G4double fVoxelHalfDimZ;
+
+  G4int fNoFiles;
+  G4int fNVoxels;
+  size_t* fMateIDs; // index of material of each voxel
+
+  G4VPhysicalVolume* fPhantomContainer;
 
   //Materials
   G4Material* fVacuum;

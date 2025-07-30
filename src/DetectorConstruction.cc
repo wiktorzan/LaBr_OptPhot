@@ -40,20 +40,20 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   ConstructMaterials();
 
   //World construction
-  WorldSize = 30.*cm;
+  WorldSize = 100.*cm;
 
   G4Box* solidWorld = new G4Box("World", WorldSize/2, WorldSize/2, WorldSize/2);
   flogicWorld = new G4LogicalVolume(solidWorld, fVacuum, "World");
   fphysiWorld = new G4PVPlacement(0, G4ThreeVector(), "World", flogicWorld, NULL, false, 0);
 
-  flogicWorld->SetVisAttributes(G4VisAttributes::GetInvisible());
+  
 
   //Construct the detector
   ConstructDet();
   ConstructPhantom();
 
 
-
+  flogicWorld->SetVisAttributes(G4VisAttributes::GetInvisible());
   return fphysiWorld;
 }
 
@@ -576,7 +576,7 @@ void DetectorConstruction::ConstructPhantom()
   // fMinZ = -fNVoxelZ*fVoxelHalfDimZ*mm;// Min Z
 
   // G4ThreeVector posCentreVoxels((fMinX+fMaxX)/2.,(fMinY+fMaxY)/2.,(fMinZ+fMaxZ)/2.);
-  G4ThreeVector posCentreVoxels(0., 0., 0.); // Center of the phantom container
+  G4ThreeVector posCentreVoxels(0., 0., -20.*cm); // Center of the phantom container
 
   G4cout << " placing voxel container volume at " << posCentreVoxels << G4endl;
 

@@ -29,6 +29,7 @@
 #include "EventAction.hh"
 #include "PhysicsList.hh"
 #include "RunAction.hh"
+#include "ICRP110PhantomVisAction.hh"
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
@@ -67,8 +68,15 @@ int main(int argc,char** argv) {
   std::string seedAndTime = ss.str() + "_" + std::to_string(seed);
   
   G4RunManager * runManager = new G4RunManager;
-  runManager->SetUserInitialization(new DetectorConstruction);
+  auto userConstruction = new DetectorConstruction;
+  runManager->SetUserInitialization(userConstruction);
   runManager->SetUserInitialization(new PhysicsList);
+
+  G4VisManager* visManager = nullptr;
+  visManager = new G4VisExecutive;
+  visManager->RegisterRunDurationUserVisAction
+  ("phantom", new ICRP110PhantomVisAction(userConstruction));
+  visManager->Initialize();
   
   G4int evNumber(0); 
 
@@ -79,11 +87,9 @@ int main(int argc,char** argv) {
   
   runManager->Initialize(); 
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
-  G4VisManager* visManager = nullptr;
-   
+  
   if (ui) {
-    visManager = new G4VisExecutive;
-    visManager->Initialize();
+
     UImanager->ApplyCommand("/control/execute vis.mac");
     ui->SessionStart();
     delete ui;

@@ -12,13 +12,19 @@ class G4Material;
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-  DetectorConstruction();
+  explicit DetectorConstruction();
   ~DetectorConstruction();
 
-  G4VPhysicalVolume* Construct();
+  G4VPhysicalVolume* Construct()override;
   void ConstructMaterials();
   void ConstructDet();
   void ConstructPhantom();
+
+  G4VPhysicalVolume* GetPhantomContainer() {return fPhantomContainer;}
+  inline G4double GetVoxelHalfDimX(){return fVoxelHalfDimX;};
+  inline G4double GetVoxelHalfDimY() {return fVoxelHalfDimY;};
+  inline G4double GetVoxelHalfDimZ() {return fVoxelHalfDimZ;};
+
   
 private:
   G4LogicalVolume* flogicWorld;

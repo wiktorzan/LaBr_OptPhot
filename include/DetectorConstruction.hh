@@ -3,6 +3,7 @@
 #define DetectorConstruction_h 1
 
 #include "G4VUserDetectorConstruction.hh"
+#include "G4ThreeVector.hh"
 
 class G4VPhysicalVolume;
 class ICRP110PhantomMaterial_Female;
@@ -18,7 +19,7 @@ public:
   G4VPhysicalVolume* Construct()override;
   void ConstructMaterials();
   void ConstructDet();
-  void ConstructPhantom();
+  void ConstructPhantom(const G4ThreeVector& posCentreVoxels);
 
   G4VPhysicalVolume* GetPhantomContainer() {return fPhantomContainer;}
   inline G4double GetVoxelHalfDimX(){return fVoxelHalfDimX;};

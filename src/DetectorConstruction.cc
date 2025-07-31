@@ -25,7 +25,7 @@ DetectorConstruction::DetectorConstruction()
 {
   fMaterial_Female = new ICRP110PhantomMaterial_Female();
   fMaterial_Male = new ICRP110PhantomMaterial_Male();
-  fSex = "female"; // Female phantom is the default option
+  fSex = "male"; // Female phantom is the default option
   fSection = "head"; // Head partial phantom is the default option
 }
 
@@ -46,14 +46,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   flogicWorld = new G4LogicalVolume(solidWorld, fVacuum, "World");
   fphysiWorld = new G4PVPlacement(0, G4ThreeVector(), "World", flogicWorld, NULL, false, 0);
 
-  
+  flogicWorld->SetVisAttributes(G4VisAttributes::GetInvisible());
 
   //Construct the detector
   ConstructDet();
-  ConstructPhantom();
+  ConstructPhantom(G4ThreeVector(0., 0., -20.*cm));
 
 
-  flogicWorld->SetVisAttributes(G4VisAttributes::GetInvisible());
   return fphysiWorld;
 }
 
@@ -410,7 +409,7 @@ lSipm->SetVisAttributes(Att4);
 
 }
 
-void DetectorConstruction::ConstructPhantom()
+void DetectorConstruction::ConstructPhantom(const G4ThreeVector& posCentreVoxels)
 {
   //------------------------------------------------------
   // Phantom geometry
@@ -576,7 +575,7 @@ void DetectorConstruction::ConstructPhantom()
   // fMinZ = -fNVoxelZ*fVoxelHalfDimZ*mm;// Min Z
 
   // G4ThreeVector posCentreVoxels((fMinX+fMaxX)/2.,(fMinY+fMaxY)/2.,(fMinZ+fMaxZ)/2.);
-  G4ThreeVector posCentreVoxels(0., 0., -20.*cm); // Center of the phantom container
+  // Center of the phantom container
 
   G4cout << " placing voxel container volume at " << posCentreVoxels << G4endl;
 

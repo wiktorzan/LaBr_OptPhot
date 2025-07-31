@@ -48,13 +48,14 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 add_executable(LaBr3_V2 LaBr3_V2.cc ${sources} ${headers})
 target_link_libraries(LaBr3_V2 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
+add_dependencies(LaBr3_V2 ICRPdata)
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build TestEm5. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
 set(LaBr3_V2_SCRIPTS
-    run.mac vis.mac
+    run.mac vis.mac ColourMap.dat
   )
 
 foreach(_script ${LaBr3_V2_SCRIPTS})
@@ -65,6 +66,15 @@ foreach(_script ${LaBr3_V2_SCRIPTS})
     )
 endforeach()
 
+include(ExternalProject)
+ExternalProject_Add(ICRPdata
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/ICRPdata
+  URL https://cern.ch/geant4-data/datasets/examples/advanced/ICRP110Phantoms/ICRPdata.tar.gz
+  URL_MD5 2aba5409d4e7b7a2f0328e7d3402f187
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  )
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #

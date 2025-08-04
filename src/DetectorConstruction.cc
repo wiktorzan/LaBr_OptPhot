@@ -191,6 +191,9 @@ void DetectorConstruction::ConstructMaterials()
 
 void DetectorConstruction::ConstructDet()
 {
+  G4Box* DetContainer_solid = new G4Box("DetectorContainer", 3.5*cm, 3.5*cm, 3.5*cm);
+  G4LogicalVolume* DetContainer_logic = new G4LogicalVolume(DetContainer_solid, fVacuum, "DetectorContainer");
+  G4VPhysicalVolume*  DetContainer=  new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), "DetectorContainer", DetContainer_logic, fphysiWorld, false, 0);
 //------------------------------------------------------
 // Detector geometry
 //------------------------------------------------------
@@ -232,23 +235,23 @@ G4double BGOW_Z = 60.1*mm;
 
 G4Tubs* reflector_al = new G4Tubs("Reflector", Reflector_Rmin, Reflector_Rmax,Reflector_Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lreflector_al = new G4LogicalVolume(reflector_al, fTefMat, "Reflector");
-G4VPhysicalVolume* physireflector_al = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "reflector", lreflector_al, fphysiWorld, false, 0);
+G4VPhysicalVolume* physireflector_al = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "reflector", lreflector_al, DetContainer, false, 0);
 
 G4Tubs* reflector_alface = new G4Tubs("Reflectorface", 0.0*cm, Reflector_Rmax, (0.1*cm)/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lreflector_alface = new G4LogicalVolume(reflector_alface, fTefMat, "Reflectorface");
 G4VPhysicalVolume* physireflector_alface = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + ((0.1*cm)/2)), "reflectorface",
-                               lreflector_alface, fphysiWorld, false, 0);
+                               lreflector_alface, DetContainer, false, 0);
 
 //Housing
 
 G4Tubs* housing_al = new G4Tubs("housing", Alhos_Rmin, Alhos_Rmax, Alhos_Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lhousing_al = new G4LogicalVolume(housing_al, fAluR, "lhousing");
-G4VPhysicalVolume* physihousing_al = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "physichousing", lhousing_al, fphysiWorld, false, 0);
+G4VPhysicalVolume* physihousing_al = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "physichousing", lhousing_al, DetContainer, false, 0);
 
 G4Tubs* housing_alface = new G4Tubs("housingface", 0.0*cm, Alhos_Rmax, (0.05*cm)/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lhousing_alface = new G4LogicalVolume(housing_alface, fAluR, "lhousingface");
 G4VPhysicalVolume* physihousing_alface = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + 0.1*cm + ((0.05*cm)/2)),
-                               "reflectorface", lreflector_alface, fphysiWorld, false, 0);
+                               "reflectorface", lreflector_alface, DetContainer, false, 0);
 
 //LaBr3 crystal
 
@@ -256,27 +259,27 @@ fLaBr3->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
 G4Tubs* SLaBr3 = new G4Tubs("LaBr3", LaBr3Rmin, LaBr3Rmax, LaBr3Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lLaBr3 = new G4LogicalVolume(SLaBr3, fLaBr3, "lLaBr3");
 G4VPhysicalVolume* physiLaBr3  = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + 0.05*cm + LaBr3Z/2), "Physi_LaBr3",
-                           lLaBr3, fphysiWorld, false, 0);
+                           lLaBr3, DetContainer, false, 0);
 
 //Teflon
 
 G4Tubs* Teflon = new G4Tubs("Teflon", LaBr3Rmax, LaBr3Rmax + 0.05*cm, Reflector_Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lteflon = new G4LogicalVolume(Teflon, fTefMat, "Teflon");
-G4VPhysicalVolume* physitef = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "teflon", lteflon, fphysiWorld, false, 0);
+G4VPhysicalVolume* physitef = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "teflon", lteflon, DetContainer, false, 0);
 
 //Window
 
 G4Tubs* Glass_window = new G4Tubs("Glass_window", Glass_Rmin, Glass_Rmax, Glass_Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lglassWindow = new G4LogicalVolume(Glass_window, fQuartz, "Glass_window");
 G4VPhysicalVolume* physiglassWindow = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + 0.05*cm + LaBr3Z + (Glass_Z/2)),
-                            "Glass_window", lglassWindow, fphysiWorld, false, 0);
+                            "Glass_window", lglassWindow, DetContainer, false, 0);
 
 //Optgel
 
 G4Tubs* Optgel = new G4Tubs("optgel", LaBr3Rmin, LaBr3Rmax, LaBr3Z/1000, StartPhi, DeltaPhi);
 G4LogicalVolume* lOptgel = new G4LogicalVolume(Optgel, fOptGrease, "optgel");
 G4VPhysicalVolume* physiOptgel = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + 0.05*cm + LaBr3Z + (Glass_Z) + (LaBr3Z/1000)),
-                           "optgel", lOptgel, fphysiWorld, false, 0);
+                           "optgel", lOptgel, DetContainer, false, 0);
 
 //SiPm positions
 
@@ -339,7 +342,7 @@ G4VPhysicalVolume* physiSiPM[52];
 
 for(G4int i=0; i<52; i++) {
   new G4PVPlacement(0, G4ThreeVector(SP_X[i], SP_Y[i], -(Reflector_Z/2) + 0.05*cm + LaBr3Z + (Glass_Z) + (2*LaBr3Z/1000) + (SiPM_Z/2)),
-            "Physi_SiPM", lSipm, fphysiWorld, true, i);
+            "Physi_SiPM", lSipm, DetContainer, true, i);
 }
 
 
@@ -353,7 +356,7 @@ for(G4int j=0;j<28;j++) {
   G4RotationMatrix* rotationMatrix = new G4RotationMatrix();
   rotationMatrix->rotateZ((j)*12.857*deg);
   physiBGOW = new G4PVPlacement(rotationMatrix, G4ThreeVector(std::sin((j)*12.857*deg)*31.25*mm, std::cos((j)*12.857*deg)*31.25*mm, 0.*cm),
-                  "BGOW", lBGOW, fphysiWorld, false, j);
+                  "BGOW", lBGOW, DetContainer, false, j);
 }
 
 //BGO

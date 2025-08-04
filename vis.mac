@@ -31,7 +31,7 @@
 #
 # Draw phantom
 /vis/viewer/set/specialMeshRendering
-/vis/drawVolume
+/vis/drawVolume worlds
 #
 # Alternatively comment out
 # /vis/viewer/set/specialMeshRendering

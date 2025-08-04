@@ -30,6 +30,8 @@
 #include "PhysicsList.hh"
 #include "RunAction.hh"
 #include "ICRP110PhantomVisAction.hh"
+#include "ParallelWorldTumor.hh"
+#include "G4ParallelWorldPhysics.hh"
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
@@ -68,9 +70,16 @@ int main(int argc,char** argv) {
   std::string seedAndTime = ss.str() + "_" + std::to_string(seed);
   
   G4RunManager * runManager = new G4RunManager;
+
   auto userConstruction = new DetectorConstruction;
+  G4String worldName = "TumorWorld";
+  G4bool overwriteMaterial = true;
+  userConstruction->RegisterParallelWorld(new ParallelWorldTumor(worldName));
   runManager->SetUserInitialization(userConstruction);
-  runManager->SetUserInitialization(new PhysicsList);
+
+  G4VModularPhysicsList * physicsList = new PhysicsList;
+  physicsList->RegisterPhysics(new G4ParallelWorldPhysics(worldName, overwriteMaterial));
+  runManager->SetUserInitialization(physicsList);
 
   G4VisManager* visManager = nullptr;
   visManager = new G4VisExecutive;

@@ -7,6 +7,7 @@
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Material.hh"
+#include "G4RunManager.hh"
 
 #include "G4Ellipsoid.hh"
 #include "G4VisAttributes.hh"
@@ -16,7 +17,12 @@
 
 ParallelWorldTumor::ParallelWorldTumor(const G4String& worldName)
 : G4VUserParallelWorld(worldName)
-{;}
+{
+    fTumorMessenger = new TumorMessenger(this);
+
+    fTumorPosition = G4ThreeVector(0.,  12.*cm, -13.*cm );
+    fTumorSize = G4ThreeVector(1.*cm, 2.*cm, 1.*cm); // Default size of the tumor (halfaxis)
+}
 
 ParallelWorldTumor::~ParallelWorldTumor()
 {;}
@@ -75,13 +81,36 @@ void ParallelWorldTumor::Construct()
     G4LogicalVolume *worldLogical = ghostWorld->GetLogicalVolume();
 
 
-    G4Ellipsoid * Tumor = new G4Ellipsoid("Tumor", 1.*cm, 2.*cm, 1.*cm);
-    G4LogicalVolume * lTumor = new G4LogicalVolume(Tumor, BrainMaterial, "TumorLogical", 0, 0, 0);
-    new G4PVPlacement(0, G4ThreeVector(0., 0., -13.*cm ), lTumor, "TumorPhysical", worldLogical, 0, 0);
+    fTumorShape = new G4Ellipsoid("Tumor", fTumorSize.x(), fTumorSize.y(), fTumorSize.z());  
+    G4LogicalVolume * lTumor = new G4LogicalVolume(fTumorShape, BrainMaterial, "TumorLogical", 0, 0, 0);
+   
+    fTumorPV = new G4PVPlacement(0, fTumorPosition, lTumor, "TumorPhysical", worldLogical, 0, 0);
 
 
     G4VisAttributes *TumorVisAttributes= new G4VisAttributes(G4Colour(0., 0.0, 1.0, 0.5)); 
     TumorVisAttributes->SetForceSolid(true); 
     lTumor->SetVisAttributes(TumorVisAttributes);
 
+}
+
+void ParallelWorldTumor::SetTumorPosition(const G4ThreeVector& position)
+{
+    G4cout << "Setting tumor position to: " << position << G4endl;
+    fTumorPosition = position;
+
+    if(fTumorPV) {
+        fTumorPV->SetTranslation(fTumorPosition);
+        G4RunManager::GetRunManager()->GeometryHasBeenModified();
+    } 
+}
+
+void ParallelWorldTumor::SetTumorSize(const G4ThreeVector& size)
+{
+    G4cout << "Setting tumor size to: " << size << G4endl;
+    fTumorSize = size;
+
+    if(fTumorShape) {
+        fTumorShape->SetSemiAxis(fTumorSize.x(), fTumorSize.y(), fTumorSize.z());
+        G4RunManager::GetRunManager()->GeometryHasBeenModified();
+    }
 }

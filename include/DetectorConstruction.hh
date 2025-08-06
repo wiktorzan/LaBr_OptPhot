@@ -21,7 +21,6 @@ public:
   void SetDetectorPosition(const G4ThreeVector& pos);
   void SetDetectorRotation(const G4ThreeVector& rot);
   void PointDetectorTo(const G4ThreeVector& targetPos);
-  void DrawArrow(const G4ThreeVector& start, const G4ThreeVector& end, G4RotationMatrix rot) ;
 
   G4VPhysicalVolume* Construct()override;
   void ConstructMaterials();

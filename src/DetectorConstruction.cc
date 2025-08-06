@@ -1124,29 +1124,16 @@ void DetectorConstruction::SetDetectorPosition(const G4ThreeVector& pos)
 
 void DetectorConstruction::SetDetectorRotation(const G4ThreeVector& rot)
 {
-  // Set the rotation of the detector
-  // fDetectorRotation = new G4RotationMatrix(rot.x(), rot.y(), rot.z());
-  // fDetectorRotation->invert();
-  // fDetectorRotation->rotateY(rot.y());
-  // fDetectorRotation->rotateZ(rot.x()); 
-  // fDetectorRotation->rotateY(rot.y());
 
-    // Oblicz oś obrotu (iloczyn wektorowy)
-    // G4ThreeVector initialDir(0., 0., 1.); // Początkowy kierunek detektora (wzdłuż osi Z)
-    // G4ThreeVector rotationAxis = (initialDir.cross(dir)).unit();
-
-    // // Oblicz kąt obrotu (iloczyn skalarny + acos)
-    // G4double angle = acos(initialDir.dot(dir));
-
-    // Stwórz macierz obrotu
-    G4RotationMatrix* rota = new G4RotationMatrix();
-    rota->rotate(rot.x(), G4ThreeVector(0., 0., 1.)); // Rotate around X axis
-    rota->rotate(rot.y(), G4ThreeVector(0., 1., 0.)); // Rotate around Y axis
-    
+    // Rotations are applied from last to first!
+    fDetectorRotation = new G4RotationMatrix();
+    fDetectorRotation->rotate(rot.x(), G4ThreeVector(0., 0., 1.)); // Rotate around Z axis
+    fDetectorRotation->rotate(rot.y(), G4ThreeVector(0., 1., 0.)); // Rotate around Y axis
+    fDetectorRotation->rotate(rot.z(), G4ThreeVector(0., 0., 1.)); // Rotate around local Z axis (psi angle)
   
   if(fDetContainer)
   {
-    fDetContainer->SetRotation(rota);
+    fDetContainer->SetRotation(fDetectorRotation);
     G4RunManager::GetRunManager()->GeometryHasBeenModified();
   }
   G4cout << "Detector rotation set." << G4endl;
@@ -1158,60 +1145,13 @@ void DetectorConstruction::PointDetectorTo(const G4ThreeVector& targetPos)
   // Point the detector towards a specific point in space
   fDetectorTargetPosition = targetPos;
   G4ThreeVector direction = fDetectorTargetPosition - fDetectorPosition;
-  G4cout << "Pointing direction is: " << direction << G4endl;
-  // direction = direction.unit();
-  
-  // G4double angleX = std::atan2(direction.y(), direction.z()) / 2 / M_PI * 360.0 * deg; // Convert to degrees
-  // G4double angleY = std::atan2(direction.x(), direction.z()) / 2 / M_PI * 360.0 * deg; // Convert to degrees
-  
-  // SetDetectorRotation(G4ThreeVector(angleX, angleY, 0.0));
-
-  // G4double angleZ = std::atan2(direction.x(), direction.y()) / 2 / M_PI * 360.0 ; // Convert to degrees
-  // G4double angleY = std::acos(-direction.z()) / 2 / M_PI * 360.0; // Convert to degrees
-  
-  // G4ThreeVector ang(-direction.getPhi() , direction.getTheta(), 0.0);
-  // G4ThreeVector ang(direction.getPhi() , direction.getTheta()-M_PI, 0.0);
-  // G4RotationMatrix rot(ang.x(), ang.y(), ang.z());
-  // SetDetectorRotation(ang);
 
   G4ThreeVector ang(-direction.getPhi() , M_PI-direction.getTheta(), 0.0);
+
   G4cout << "Detector angle is: " << ang / deg << G4endl;
-  G4RotationMatrix rot(45.*deg, -35.*deg, 0.);
+
   SetDetectorRotation(ang);
   
-  G4cout << "Detector angle is" << ang / deg << G4endl;
-  G4cout << "Detector pointed  " << targetPos << G4endl;
+  G4cout << "Detector pointed to " << targetPos << G4endl;
   fDetectorTargetSet = true;
-
-  DrawArrow(fDetectorPosition, direction, G4RotationMatrix(0, 0, 0));
-  DrawArrow(fDetectorPosition, G4ThreeVector(0.,0., -20.*cm), G4RotationMatrix(0.,0., 0.0));
-  DrawArrow(fDetectorPosition, G4ThreeVector(0.,0., -20.*cm), rot);
-
-
-}
-
-
-void DetectorConstruction::DrawArrow(const G4ThreeVector& start, const G4ThreeVector& dir, const G4RotationMatrix rot) {
-  auto visManager = G4VVisManager::GetConcreteInstance();
-  if (!visManager) return;
-
-  // G4RotationMatrix rot1(45.*deg, -35.*deg, 0.);
-  G4RotationMatrix rot1(0.,0.,0.);
-  rot1.rotateZ(45*deg);
-  rot1.rotateY(-35*deg);
-
-
-  G4ThreeVector rotdir = rot1 * dir;
-  G4ThreeVector end = start + rotdir;
-
-  G4Polyline arrow;
-  arrow.push_back(start);
-  arrow.push_back(end);
-
-  G4VisAttributes attr(G4Colour(1,0,0)); // czerwony
-  arrow.SetVisAttributes(&attr);
-
-  visManager->Draw(arrow);
-  G4cout << "Rotations is: " << rot1 << G4endl;
-  G4cout << "Arrow angle is" << rotdir.getTheta() / deg << " " << rotdir.getPhi() / deg << G4endl;
 }

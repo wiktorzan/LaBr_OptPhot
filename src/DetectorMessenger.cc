@@ -18,7 +18,9 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* detectorConstruction)
 
     fSetDetectorRotationCmd = new G4UIcmdWith3VectorAndUnit("/LaBr3/det/setRotation", this);
     fSetDetectorRotationCmd->SetGuidance("Set the rotation of the detector.");
-    fSetDetectorRotationCmd->SetParameterName("xaxis", "yaxis", "zaxis", false);
+    fSetDetectorRotationCmd->SetGuidance("Angles are in degrees and applied in the order: Z, Y, X.");
+    fSetDetectorRotationCmd->SetParameterName("phi", "theta", "psi", false);
+    fSetDetectorRotationCmd->SetGuidance("phi: [0, 2pi] starting at the +X axis, theta: [0, pi] starting at the +Z axis, psi: [0, 2pi] around the local Z axis.");
     fSetDetectorRotationCmd->SetUnitCategory("Angle");
     fSetDetectorRotationCmd->SetDefaultUnit("deg");
 
@@ -43,8 +45,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
         fDetectorConstruction->SetDetectorPosition(
             fSetDetectorPositionCmd->GetNew3VectorValue(newValue));
     } else if (command == fSetDetectorRotationCmd) {
-        fDetectorConstruction->SetDetectorRotation(
-            fSetDetectorRotationCmd->GetNew3VectorValue(newValue));
+        G4ThreeVector angle = fSetDetectorRotationCmd->GetNew3VectorValue(newValue);
+        angle = G4ThreeVector(-angle.x(), M_PI-angle.y(), angle.z()); // Adjust angles for correct rotation
+        fDetectorConstruction->SetDetectorRotation(angle);
     } else if (command == fSetDetectorTargetCmd) {
         fDetectorConstruction->PointDetectorTo(
             fSetDetectorTargetCmd->GetNew3VectorValue(newValue));

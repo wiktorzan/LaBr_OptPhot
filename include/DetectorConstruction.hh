@@ -4,6 +4,8 @@
 
 #include "G4VUserDetectorConstruction.hh"
 #include "G4ThreeVector.hh"
+#include "G4RotationMatrix.hh"
+#include "DetectorMessenger.hh"
 
 class G4VPhysicalVolume;
 class ICRP110PhantomMaterial_Female;
@@ -15,6 +17,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 public:
   explicit DetectorConstruction();
   ~DetectorConstruction();
+
+  void SetDetectorPosition(const G4ThreeVector& pos);
+  void SetDetectorRotation(const G4ThreeVector& rot);
+  void PointDetectorTo(const G4ThreeVector& targetPos);
+  void DrawArrow(const G4ThreeVector& start, const G4ThreeVector& end, G4RotationMatrix rot) ;
 
   G4VPhysicalVolume* Construct()override;
   void ConstructMaterials();
@@ -28,10 +35,23 @@ public:
 
   
 private:
+  DetectorMessenger* fDetectorMessenger;
+
+  //World parameters
   G4LogicalVolume* flogicWorld;
   G4VPhysicalVolume* fphysiWorld;
 
   G4double WorldSize;
+
+  //Detector parameters
+  G4VPhysicalVolume* fDetContainer;
+
+  G4ThreeVector fDetectorPosition;
+  G4RotationMatrix* fDetectorRotation;
+  G4ThreeVector fDetectorTargetPosition;
+  G4bool fDetectorTargetSet;
+
+
   G4double LaBr3Rmin;
   G4double LaBr3Rmax;
   G4double LaBr3Z;

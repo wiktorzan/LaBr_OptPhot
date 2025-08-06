@@ -2,6 +2,10 @@
 #include "ICRP110PhantomMaterial_Female.hh"
 #include "ICRP110PhantomMaterial_Male.hh"
 #include "ICRP110PhantomNestedParameterisation.hh"
+#include "G4RunManager.hh"
+
+#include "G4AxesModel.hh"
+#include "G4VisManager.hh"
 
 #include "G4PVParameterised.hh"
 #include "G4LogicalBorderSurface.hh"
@@ -19,14 +23,27 @@
 #include "G4Box.hh"
 #include "G4Tubs.hh"
 
+#include "G4VisAttributes.hh"
+#include "G4Polyline.hh"
+#include "G4VVisManager.hh"
+
 using namespace CLHEP;
 
 DetectorConstruction::DetectorConstruction()
 {
+  fDetectorMessenger = new DetectorMessenger(this);
+
+  //Phantom parameters
   fMaterial_Female = new ICRP110PhantomMaterial_Female();
   fMaterial_Male = new ICRP110PhantomMaterial_Male();
   fSex = "male"; // Female phantom is the default option
   fSection = "head"; // Head partial phantom is the default option
+
+  //Detector parameters
+  fDetectorPosition = G4ThreeVector(0., 0., 20.*cm); // Default position of the detector
+  fDetectorRotation = new G4RotationMatrix();        //Default rotation of the detector
+  fDetectorTargetPosition = G4ThreeVector(0., 0., 0.); 
+  fDetectorTargetSet = false;                        // Default is not to point the detector to a target
 }
 
 DetectorConstruction::~DetectorConstruction()
@@ -50,7 +67,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   //Construct the detector
   ConstructDet();
-  ConstructPhantom(G4ThreeVector(0., 0., -20.*cm));
+  ConstructPhantom(G4ThreeVector(0., 0., 0.));
 
 
   return fphysiWorld;
@@ -193,7 +210,7 @@ void DetectorConstruction::ConstructDet()
 {
   G4Box* DetContainer_solid = new G4Box("DetectorContainer", 3.5*cm, 3.5*cm, 3.5*cm);
   G4LogicalVolume* DetContainer_logic = new G4LogicalVolume(DetContainer_solid, fVacuum, "DetectorContainer");
-  G4VPhysicalVolume*  DetContainer=  new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), "DetectorContainer", DetContainer_logic, fphysiWorld, false, 0);
+  fDetContainer=  new G4PVPlacement(0, fDetectorPosition, "DetectorContainer", DetContainer_logic, fphysiWorld, false, 0);
 //------------------------------------------------------
 // Detector geometry
 //------------------------------------------------------
@@ -235,23 +252,23 @@ G4double BGOW_Z = 60.1*mm;
 
 G4Tubs* reflector_al = new G4Tubs("Reflector", Reflector_Rmin, Reflector_Rmax,Reflector_Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lreflector_al = new G4LogicalVolume(reflector_al, fTefMat, "Reflector");
-G4VPhysicalVolume* physireflector_al = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "reflector", lreflector_al, DetContainer, false, 0);
+G4VPhysicalVolume* physireflector_al = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "reflector", lreflector_al, fDetContainer, false, 0);
 
 G4Tubs* reflector_alface = new G4Tubs("Reflectorface", 0.0*cm, Reflector_Rmax, (0.1*cm)/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lreflector_alface = new G4LogicalVolume(reflector_alface, fTefMat, "Reflectorface");
 G4VPhysicalVolume* physireflector_alface = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + ((0.1*cm)/2)), "reflectorface",
-                               lreflector_alface, DetContainer, false, 0);
+                               lreflector_alface, fDetContainer, false, 0);
 
 //Housing
 
 G4Tubs* housing_al = new G4Tubs("housing", Alhos_Rmin, Alhos_Rmax, Alhos_Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lhousing_al = new G4LogicalVolume(housing_al, fAluR, "lhousing");
-G4VPhysicalVolume* physihousing_al = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "physichousing", lhousing_al, DetContainer, false, 0);
+G4VPhysicalVolume* physihousing_al = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "physichousing", lhousing_al, fDetContainer, false, 0);
 
 G4Tubs* housing_alface = new G4Tubs("housingface", 0.0*cm, Alhos_Rmax, (0.05*cm)/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lhousing_alface = new G4LogicalVolume(housing_alface, fAluR, "lhousingface");
 G4VPhysicalVolume* physihousing_alface = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + 0.1*cm + ((0.05*cm)/2)),
-                               "reflectorface", lreflector_alface, DetContainer, false, 0);
+                               "reflectorface", lreflector_alface, fDetContainer, false, 0);
 
 //LaBr3 crystal
 
@@ -259,27 +276,27 @@ fLaBr3->GetIonisation()->SetBirksConstant(0.126*mm/MeV);
 G4Tubs* SLaBr3 = new G4Tubs("LaBr3", LaBr3Rmin, LaBr3Rmax, LaBr3Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lLaBr3 = new G4LogicalVolume(SLaBr3, fLaBr3, "lLaBr3");
 G4VPhysicalVolume* physiLaBr3  = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + 0.05*cm + LaBr3Z/2), "Physi_LaBr3",
-                           lLaBr3, DetContainer, false, 0);
+                           lLaBr3, fDetContainer, false, 0);
 
 //Teflon
 
 G4Tubs* Teflon = new G4Tubs("Teflon", LaBr3Rmax, LaBr3Rmax + 0.05*cm, Reflector_Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lteflon = new G4LogicalVolume(Teflon, fTefMat, "Teflon");
-G4VPhysicalVolume* physitef = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "teflon", lteflon, DetContainer, false, 0);
+G4VPhysicalVolume* physitef = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0.*cm), "teflon", lteflon, fDetContainer, false, 0);
 
 //Window
 
 G4Tubs* Glass_window = new G4Tubs("Glass_window", Glass_Rmin, Glass_Rmax, Glass_Z/2, StartPhi, DeltaPhi);
 G4LogicalVolume* lglassWindow = new G4LogicalVolume(Glass_window, fQuartz, "Glass_window");
 G4VPhysicalVolume* physiglassWindow = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + 0.05*cm + LaBr3Z + (Glass_Z/2)),
-                            "Glass_window", lglassWindow, DetContainer, false, 0);
+                            "Glass_window", lglassWindow, fDetContainer, false, 0);
 
 //Optgel
 
 G4Tubs* Optgel = new G4Tubs("optgel", LaBr3Rmin, LaBr3Rmax, LaBr3Z/1000, StartPhi, DeltaPhi);
 G4LogicalVolume* lOptgel = new G4LogicalVolume(Optgel, fOptGrease, "optgel");
 G4VPhysicalVolume* physiOptgel = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, -(Reflector_Z/2) + 0.05*cm + LaBr3Z + (Glass_Z) + (LaBr3Z/1000)),
-                           "optgel", lOptgel, DetContainer, false, 0);
+                           "optgel", lOptgel, fDetContainer, false, 0);
 
 //SiPm positions
 
@@ -342,7 +359,7 @@ G4VPhysicalVolume* physiSiPM[52];
 
 for(G4int i=0; i<52; i++) {
   new G4PVPlacement(0, G4ThreeVector(SP_X[i], SP_Y[i], -(Reflector_Z/2) + 0.05*cm + LaBr3Z + (Glass_Z) + (2*LaBr3Z/1000) + (SiPM_Z/2)),
-            "Physi_SiPM", lSipm, DetContainer, true, i);
+            "Physi_SiPM", lSipm, fDetContainer, true, i);
 }
 
 
@@ -356,7 +373,7 @@ for(G4int j=0;j<28;j++) {
   G4RotationMatrix* rotationMatrix = new G4RotationMatrix();
   rotationMatrix->rotateZ((j)*12.857*deg);
   physiBGOW = new G4PVPlacement(rotationMatrix, G4ThreeVector(std::sin((j)*12.857*deg)*31.25*mm, std::cos((j)*12.857*deg)*31.25*mm, 0.*cm),
-                  "BGOW", lBGOW, DetContainer, false, j);
+                  "BGOW", lBGOW, fDetContainer, false, j);
 }
 
 //BGO
@@ -1085,4 +1102,116 @@ G4String slice;
       fMateIDs[nnew] = mateID_out;
     }
   }
+}
+
+void DetectorConstruction::SetDetectorPosition(const G4ThreeVector& pos)
+{
+  // Set the position of the detector
+  fDetectorPosition = pos;
+  G4cout << "Detector position set to: " << fDetectorPosition << G4endl;
+  if(fDetContainer)
+  {
+    fDetContainer->SetTranslation(fDetectorPosition);
+    G4RunManager::GetRunManager()->GeometryHasBeenModified();
+  }
+
+  if(fDetectorTargetSet)
+  {
+    PointDetectorTo(fDetectorTargetPosition);
+  }
+
+}
+
+void DetectorConstruction::SetDetectorRotation(const G4ThreeVector& rot)
+{
+  // Set the rotation of the detector
+  // fDetectorRotation = new G4RotationMatrix(rot.x(), rot.y(), rot.z());
+  // fDetectorRotation->invert();
+  // fDetectorRotation->rotateY(rot.y());
+  // fDetectorRotation->rotateZ(rot.x()); 
+  // fDetectorRotation->rotateY(rot.y());
+
+    // Oblicz oś obrotu (iloczyn wektorowy)
+    // G4ThreeVector initialDir(0., 0., 1.); // Początkowy kierunek detektora (wzdłuż osi Z)
+    // G4ThreeVector rotationAxis = (initialDir.cross(dir)).unit();
+
+    // // Oblicz kąt obrotu (iloczyn skalarny + acos)
+    // G4double angle = acos(initialDir.dot(dir));
+
+    // Stwórz macierz obrotu
+    G4RotationMatrix* rota = new G4RotationMatrix();
+    rota->rotate(rot.x(), G4ThreeVector(0., 0., 1.)); // Rotate around X axis
+    rota->rotate(rot.y(), G4ThreeVector(0., 1., 0.)); // Rotate around Y axis
+    
+  
+  if(fDetContainer)
+  {
+    fDetContainer->SetRotation(rota);
+    G4RunManager::GetRunManager()->GeometryHasBeenModified();
+  }
+  G4cout << "Detector rotation set." << G4endl;
+  fDetectorTargetSet = false;
+}
+
+void DetectorConstruction::PointDetectorTo(const G4ThreeVector& targetPos)
+{
+  // Point the detector towards a specific point in space
+  fDetectorTargetPosition = targetPos;
+  G4ThreeVector direction = fDetectorTargetPosition - fDetectorPosition;
+  G4cout << "Pointing direction is: " << direction << G4endl;
+  // direction = direction.unit();
+  
+  // G4double angleX = std::atan2(direction.y(), direction.z()) / 2 / M_PI * 360.0 * deg; // Convert to degrees
+  // G4double angleY = std::atan2(direction.x(), direction.z()) / 2 / M_PI * 360.0 * deg; // Convert to degrees
+  
+  // SetDetectorRotation(G4ThreeVector(angleX, angleY, 0.0));
+
+  // G4double angleZ = std::atan2(direction.x(), direction.y()) / 2 / M_PI * 360.0 ; // Convert to degrees
+  // G4double angleY = std::acos(-direction.z()) / 2 / M_PI * 360.0; // Convert to degrees
+  
+  // G4ThreeVector ang(-direction.getPhi() , direction.getTheta(), 0.0);
+  // G4ThreeVector ang(direction.getPhi() , direction.getTheta()-M_PI, 0.0);
+  // G4RotationMatrix rot(ang.x(), ang.y(), ang.z());
+  // SetDetectorRotation(ang);
+
+  G4ThreeVector ang(-direction.getPhi() , M_PI-direction.getTheta(), 0.0);
+  G4cout << "Detector angle is: " << ang / deg << G4endl;
+  G4RotationMatrix rot(45.*deg, -35.*deg, 0.);
+  SetDetectorRotation(ang);
+  
+  G4cout << "Detector angle is" << ang / deg << G4endl;
+  G4cout << "Detector pointed  " << targetPos << G4endl;
+  fDetectorTargetSet = true;
+
+  DrawArrow(fDetectorPosition, direction, G4RotationMatrix(0, 0, 0));
+  DrawArrow(fDetectorPosition, G4ThreeVector(0.,0., -20.*cm), G4RotationMatrix(0.,0., 0.0));
+  DrawArrow(fDetectorPosition, G4ThreeVector(0.,0., -20.*cm), rot);
+
+
+}
+
+
+void DetectorConstruction::DrawArrow(const G4ThreeVector& start, const G4ThreeVector& dir, const G4RotationMatrix rot) {
+  auto visManager = G4VVisManager::GetConcreteInstance();
+  if (!visManager) return;
+
+  // G4RotationMatrix rot1(45.*deg, -35.*deg, 0.);
+  G4RotationMatrix rot1(0.,0.,0.);
+  rot1.rotateZ(45*deg);
+  rot1.rotateY(-35*deg);
+
+
+  G4ThreeVector rotdir = rot1 * dir;
+  G4ThreeVector end = start + rotdir;
+
+  G4Polyline arrow;
+  arrow.push_back(start);
+  arrow.push_back(end);
+
+  G4VisAttributes attr(G4Colour(1,0,0)); // czerwony
+  arrow.SetVisAttributes(&attr);
+
+  visManager->Draw(arrow);
+  G4cout << "Rotations is: " << rot1 << G4endl;
+  G4cout << "Arrow angle is" << rotdir.getTheta() / deg << " " << rotdir.getPhi() / deg << G4endl;
 }

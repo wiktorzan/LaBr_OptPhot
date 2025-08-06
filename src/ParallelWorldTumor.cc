@@ -66,7 +66,7 @@ void ParallelWorldTumor::Construct()
     //Brain -- copied from ICRP110PhantomMaterial_Female 
     //male and female material differs a little bit - here ignored
     d = 1.050 *g/cm3;
-    G4Material* BrainMaterial = new G4Material("brain",d,9);
+    G4Material* BrainMaterial = new G4Material("tumorMaterial",d,9);
     BrainMaterial -> AddElement(elH,0.107);
     BrainMaterial -> AddElement(elC,0.144);
     BrainMaterial -> AddElement(elN,0.022);

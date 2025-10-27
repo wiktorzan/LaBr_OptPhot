@@ -30,6 +30,7 @@
 #include "Histo_Collection.h"
 
 bool FileCheck(const std::string& NameOfFile);
+void FindTriggerTimes(std::string NameOfFile, std::map<Int_t, Double_t> *triggerTimes);
 void AnalyzeFile(std::string NameOfFile, HistCollection histo);
 
 int main(int argc, char* argv[])
@@ -42,8 +43,10 @@ int main(int argc, char* argv[])
   }
 
   Double_t minMaxDim = 30, binSizeSmall = 1;// in mm
+  Double_t minTime = 0, maxTime = 50, binSize = 0.2; // in ns
   HistCollection hist;
   hist.CreatePositionHistos(minMaxDim, binSizeSmall);
+  hist.CreateTimingHistos(minTime, maxTime, binSize);
   TString outputName = "";
   std::string fileOrPattern = argv[1];
 
@@ -114,6 +117,10 @@ int main(int argc, char* argv[])
 
 void AnalyzeFile(std::string NameOfFile, HistCollection hist)
 {
+  std::map<Int_t, Double_t>* triggerTimes = new std::map<Int_t, Double_t>();
+  std::cout << " Looking for triggers in  " << NameOfFile << std::endl;
+  FindTriggerTimes(NameOfFile, triggerTimes);
+
   TString fileName = NameOfFile;
   std::cout << " Reading file " << fileName << std::endl;
   TFile* hfile = new TFile(fileName, "READ");
@@ -142,6 +149,16 @@ void AnalyzeFile(std::string NameOfFile, HistCollection hist)
   Double_t gammaZ = -35;
   for (Int_t i=0; i<nentries; i++) {
     ntuple->GetEntry(i);
+    
+    // if(evNr == 940) {
+    //   // std::cout << "Event 4105: pType " << pType << " pName " << pName << " KE " << KE << " Edep " << Edep
+    //   //           << " posX " << posX << " posY " << posY << " posZ " << posZ
+    //   //           << " Det " << Det << " CopyNo " << CopyNo << " time " << time
+    //   //           << " momX " << momX << " momY " << momY << " momZ " << momZ << std::endl;
+    //   std::cout << "Event 4105: pType " << pType << " pName " << pName 
+    //             << " Det " << Det << " CopyNo " << CopyNo << " time " << time
+    //              << std::endl;
+    // }else continue;
 
     if (pType == 0) {
       gammaZ = posZ;
@@ -153,9 +170,17 @@ void AnalyzeFile(std::string NameOfFile, HistCollection hist)
       if (Det == 22) {
         TVector3 pos2(posX, posY, gammaZ);
         hist.FillPositionHisto(pos2, HistoLabel::cGZH_XY);
+        Double_t ToA = time - (*triggerTimes)[evNr];
+        if (ToA < 0) std::cout << "Warning! Negative ToA = " << ToA << " for event " << evNr << " in file " << NameOfFile << std::endl;
+        hist.FillTimingHisto(time, CopyNo, HistoLabel::TGlobal);
+        // std::cout << "Time " << time << std::endl;
+        hist.FillTimingHisto(ToA, CopyNo, HistoLabel::TTrigger);
+        hist.FillTimevsDepth(ToA, gammaZ, HistoLabel::all);
+        if (CopyNo == 21) {hist.FillTimevsDepth(ToA, gammaZ, HistoLabel::single);}
       }
     } else {
       currentEvent = evNr;
+      // std::cout << " Trigger time for event " << evNr << " is " << (*triggerTimes)[evNr] << " ns" << std::endl;
     }
   }
 }
@@ -164,4 +189,49 @@ bool FileCheck(const std::string& NameOfFile)
 {
     struct stat buffer;
     return (stat(NameOfFile.c_str(), &buffer) == 0);
+}
+
+void FindTriggerTimes(std::string NameOfFile, std::map<Int_t, Double_t>* triggerTimes)
+{
+  TString fileName = NameOfFile;
+  TFile* hfile = new TFile(fileName, "READ");
+  TTree *ntuple = (TTree *) hfile->Get("T");
+
+  Int_t evNr, pType, pName, Det, CopyNo;
+  Double_t time;
+  ntuple->SetBranchAddress("evNr", &evNr);
+  ntuple->SetBranchAddress("pType", &pType);
+  ntuple->SetBranchAddress("pName", &pName);
+  ntuple->SetBranchAddress("Det", &Det);
+  ntuple->SetBranchAddress("CopyNo", &CopyNo);
+  ntuple->SetBranchAddress("Gtime", &time);
+
+
+  Int_t nentries = (Int_t)ntuple->GetEntries();
+
+  Int_t currentEvent = -1;
+  Double_t triggerTime = 1000;
+  for (Int_t i=0; i<nentries; i++) {
+    ntuple->GetEntry(i);
+
+    if (evNr != currentEvent) {
+      
+
+      if(triggerTime < 1000) {
+        (*triggerTimes)[currentEvent] = triggerTime;
+        // std::cout << " Trigger time for event " << evNr << " is " << (*triggerTimes)[evNr] << " ns" << std::endl;
+      }
+      currentEvent = evNr;
+      triggerTime = 1000;
+    }
+
+    if(Det == 22) {
+      if(triggerTime > time) {triggerTime = time;}
+    }
+  }
+  if(triggerTime < 1000) {
+    (*triggerTimes)[currentEvent] = triggerTime;
+  }
+
+  hfile->Close();
 }

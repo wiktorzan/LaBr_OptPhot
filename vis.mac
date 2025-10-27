@@ -1,3 +1,17 @@
+/gps/particle gamma
+/gps/energy 0.5 MeV
+/gps/number 1
+
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/centre  0 0 0 cm
+/gps/pos/radius 2.54 cm
+/gps/pos/inner_radius 0 cm
+/gps/pos/halfz 2.54 cm
+
+
+/gps/ang/type iso
+
 # Macro file for the visualization setting in the initialization phase 
 #
 /control/verbose 2
@@ -12,7 +26,7 @@
 /vis/open OGL 600x600-0+0
 #
 # Use this open statement to create an OpenInventor view:
-/vis/open OI
+#/vis/open OI
 #
 # Use this open statement to create a .prim file suitable for
 # viewing in DAWN:
@@ -55,8 +69,8 @@
 /vis/scene/add/hits
 #
 # To draw only gammas:
-#/vis/filtering/trajectories/create/particleFilter
-#/vis/filtering/trajectories/particleFilter-0/add alpha
+/vis/filtering/trajectories/create/particleFilter
+/vis/filtering/trajectories/particleFilter-0/add gamma
 #
 # To invert the above, drawing all particles except gammas,
 # keep the above two lines but also add:

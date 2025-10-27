@@ -1,0 +1,14 @@
+/gps/particle gamma
+/gps/energy 0.5 MeV
+/gps/number 1
+
+/gps/pos/type Volume
+/gps/pos/shape Cylinder
+/gps/pos/centre  0 0 0 cm
+/gps/pos/radius 2.54 cm
+/gps/pos/inner_radius 0 cm
+/gps/pos/halfz 2.54 cm
+
+
+/gps/ang/type iso
+/run/beamOn 10

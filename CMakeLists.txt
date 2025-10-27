@@ -1,6 +1,6 @@
 #----------------------------------------------------------------------------
 # Setup the project
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project(LABr3_V2)
 
@@ -54,7 +54,7 @@ target_link_libraries(LaBr3_V2 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 # relies on these scripts being in the current working directory.
 #
 set(LaBr3_V2_SCRIPTS
-    run.mac vis.mac
+    run.mac vis.mac internalRadiation.mac
   )
 
 foreach(_script ${LaBr3_V2_SCRIPTS})

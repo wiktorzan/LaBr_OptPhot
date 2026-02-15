@@ -72,10 +72,20 @@ int main(int argc,char** argv) {
   
   G4int evNumber(0); 
 
+  std::string fileNameAdd;
+  if (argc == 4) {
+    fileNameAdd= "scan_" + std::string(argv[2]) + "_" + std::string(argv[3]) + "_" + seedAndTime;
+  }else{
+    fileNameAdd = seedAndTime;
+  }
+
+
+
+  
   runManager->SetUserAction(new PrimaryGeneratorAction);
   runManager->SetUserAction(new RunAction);
   runManager->SetUserAction(new EventAction(&evNumber));
-  runManager->SetUserAction(new SteppingAction(&evNumber, seedAndTime));
+  runManager->SetUserAction(new SteppingAction(&evNumber, fileNameAdd));
   
   runManager->Initialize(); 
   G4UImanager* UImanager = G4UImanager::GetUIpointer();

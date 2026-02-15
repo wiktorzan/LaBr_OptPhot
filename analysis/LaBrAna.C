@@ -31,6 +31,7 @@
 
 bool FileCheck(const std::string& NameOfFile);
 void AnalyzeFile(std::string NameOfFile, HistCollection histo);
+void SavePhotonCount(TH1* hist, std::ofstream& csv, std::string fileName);
 
 int main(int argc, char* argv[])
 {
@@ -138,10 +139,18 @@ void AnalyzeFile(std::string NameOfFile, HistCollection hist)
 
   Int_t nentries = (Int_t)ntuple->GetEntries();
 
+  //photon count per SiPM
+  TH1I hOpt_count("OpticalCount", "Optical photon count per SiPM", 52, 0, 52);
+  FILE *file = fopen("OpticalCount.csv", "a");
+  std::ofstream csv("OpticalCount.csv",std::ios_base::app);
+
   Int_t currentEvent = -1;
   Double_t gammaZ = -35;
   for (Int_t i=0; i<nentries; i++) {
     ntuple->GetEntry(i);
+
+    if(Det == 22) //if photon hit the SiPM
+      hOpt_count.Fill(CopyNo);
 
     if (pType == 0) {
       gammaZ = posZ;
@@ -156,12 +165,58 @@ void AnalyzeFile(std::string NameOfFile, HistCollection hist)
       }
     } else {
       currentEvent = evNr;
+      //if current event changed - save histo and reset it for the next event
+      if(hOpt_count.GetEntries() > 0) 
+        SavePhotonCount(&hOpt_count, csv, NameOfFile);
+      hOpt_count.Reset();
     }
   }
+  csv.close();
 }
 
 bool FileCheck(const std::string& NameOfFile)
 {
     struct stat buffer;
     return (stat(NameOfFile.c_str(), &buffer) == 0);
+}
+
+void SavePhotonCount(TH1* hist, std::ofstream& csv, std::string fileName)
+{
+  int bins = hist->GetNbinsX();
+  csv << "0;0;";
+  for (int i=1; i<5; i++)
+    csv << hist->GetBinContent(i) << ";";
+  csv << "0;0;" << "0;";
+  for (int i=5; i<11; i++)
+    csv << hist->GetBinContent(i) << ";";
+  csv << "0;";
+  for (int i=11; i<43; i++)
+    csv << hist->GetBinContent(i) << ";";
+  csv << "0;";
+  for (int i=43; i<49; i++)
+    csv << hist->GetBinContent(i) << ";";
+  csv << "0;"<< "0;0;";
+  for (int i=49; i<=bins; i++) 
+    csv << hist->GetBinContent(i) << ";";
+  csv << "0;0;";
+
+
+  // int shift = 0;
+  // if(fileName[5] == '-'){
+  //   csv << fileName.substr(5, 5) << ";";
+  //   shift = 1;
+  // } else {
+  //   csv << fileName.substr(5, 4) << ";";
+  //   shift = 0;
+  // }
+
+  // if(fileName[10 + shift] == '-')
+  //   csv << fileName.substr(10 + shift, 5);
+  // else
+  //   csv << fileName.substr(10 + shift, 4);
+
+  csv << fileName.substr(12,3) << ";";
+  csv << fileName.substr(16,3);
+
+  csv << std::endl;
 }

@@ -30,15 +30,37 @@
 
 #include "globals.hh"
 
+#include "G4Track.hh"
+#include "G4Run.hh"
+
+enum HistoId {
+  ElectronEnergyHist = 0,
+  GammaDepositedEnergyHist
+};
+
 class HistoManager
 {
 public:
-  HistoManager();
+  static HistoManager* GetPointer();
   ~HistoManager();
 
+  void BeginOfRun(const G4Run* run);
+  void EndOfRun();
+  void BeginOfEvent();
+  void EndOfEvent();
+
+  void Initialize();
+  void Close();
+  void FillEHisto(HistoId histId, G4double value);
+
+
+  void TrackingAction(const G4Track* track);
+
 private:
-  void Book();
-  G4String fFileName;
+  HistoManager();
+  static HistoManager* fManager;
+
+  double fGammaDepositedEnergy;
 };
 
 #endif

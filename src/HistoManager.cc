@@ -1,43 +1,108 @@
 #include "HistoManager.hh"
+#include "G4AnalysisManager.hh" 
 
-#include "G4UnitsTable.hh"
+#include "G4SystemOfUnits.hh"
 
-HistoManager::HistoManager() : fFileName("rdecay01")
+#include "G4Electron.hh"
+#include "G4VProcess.hh"
+
+HistoManager* HistoManager::fManager = nullptr;
+
+
+
+
+
+HistoManager* HistoManager::GetPointer()
 {
-  Book();
+  if (!fManager) {
+    static HistoManager manager;
+    fManager = &manager;
+  }
+  return fManager;
+}
+
+HistoManager::HistoManager()
+{
+  auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->OpenFile("histomanager_out.root");
+  Initialize();
 }
 
 HistoManager::~HistoManager()
-{}
-
-void HistoManager::Book()
 {
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-  analysisManager->SetFileName(fFileName);
-  analysisManager->SetVerboseLevel(1);
-  analysisManager->SetActivation(true);
+}
 
-  const G4int kMaxHisto = 10;
-  const G4String id[] = {"0","1","2","3","4","5","6","7","8","9"};
-  const G4String title[] = 
-          { "dummy",                                    //0
-            "energy spectrum (%): e+ e-",               //1
-            "energy spectrum (%): nu_e anti_nu_e",      //2
-            "energy spectrum (%): gamma",               //3
-            "energy spectrum (%): alpha",               //4
-            "energy spectrum (%): ions",                //5
-            "total kinetic energy per single decay (Q)",//6
-            "momentum balance",                         //7
-            "total time of life of decay chain",        //8
-            "total visible energy in decay chain"       //9
-          };
+void HistoManager::Initialize()
+{
+  fGammaDepositedEnergy = 0.;
 
-  G4int nbins = 100;
-  G4double vmin = 0.;
-  G4double vmax = 100.;
 
-  for (G4int k=0; k<kMaxHisto; k++) {
-    G4int ih = analysisManager->CreateH1(id[k], title[k], nbins, vmin, vmax);
-    analysisManager->SetH1Activation(ih, false);
+  auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->CreateH1("ElectronEnergy", "Energy of electrons; E[keV]; Counts", 100, 0., 1100. ); //keV
+  analysisManager->CreateH1("GammaDepositedEnergy", "Energy deposited by gammas; E[keV]; Counts", 100, 0., 1100. ); //keV
+}
+
+
+void HistoManager::Close()
+{
+  auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->CloseFile();
+}
+
+void HistoManager::FillEHisto(HistoId histId, G4double value)
+{
+  auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->FillH1(histId, value);
+}
+
+void HistoManager::BeginOfRun(const G4Run* run)
+{
+  G4cout << "HISTOMANAGER  ### Run started" << G4endl;
+  auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->Reset();
+}
+
+void HistoManager::EndOfRun()
+{
+  G4cout << "HISTOMANAGER  ### Run ended" << G4endl;
+  auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->Write();
+}
+
+void HistoManager::BeginOfEvent()
+{
+  // G4cout << "HISTOMANAGER  ### Event started" << G4endl;
+}
+
+void HistoManager::EndOfEvent()
+{
+  // G4cout << "HISTOMANAGER  ### Event ended" << G4endl;
+    FillEHisto(GammaDepositedEnergyHist, fGammaDepositedEnergy);
+    fGammaDepositedEnergy = 0.;
+}
+
+void HistoManager::TrackingAction(const G4Track* track)
+{ 
+  bool isElectron = track->GetDefinition() == G4Electron::ElectronDefinition();
+  bool createdByGamma = track->GetParentID() == 1;
+  bool isFirstStep = track->GetCurrentStepNumber() == 0;
+
+  if(createdByGamma && isFirstStep)
+  {
+    double energy = track->GetKineticEnergy() / keV;
+    fGammaDepositedEnergy += energy;
+
+    if(isElectron)
+    {
+      // G4cout << "TrackID :" << track->GetTrackID() << " Particle: " << track->GetDefinition()->GetParticleName() 
+      //        << " Energy: " << track->GetKineticEnergy() / keV << " keV" 
+      //        << " Creator: " << (track->GetCreatorProcess() ? track->GetCreatorProcess()->GetProcessName() : "unknown") 
+      //        << G4endl;
+      // //parent particle 
+      // G4cout << "ParentID :" << track->GetParentID() << G4endl;
+      FillEHisto(ElectronEnergyHist, energy);
+    }
+
   }
+
 }

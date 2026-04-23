@@ -3,6 +3,8 @@
 #include "RunAction.hh"
 #include "Analysis.hh"
 
+#include "HistoManager.hh"
+
 #include "G4GeneralParticleSource.hh"
 #include "G4EventManager.hh"
 #include "G4RunManager.hh"
@@ -29,7 +31,11 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
   *evNr = eventID;
   if (eventID %  PrintModulo == 0)
     G4cout << "\n---> Begin of Event: " << eventID << G4endl;
+
+  HistoManager::GetPointer()->BeginOfEvent();
 }
 
 void EventAction::EndOfEventAction(const G4Event* evt)
-{}
+{
+  HistoManager::GetPointer()->EndOfEvent();
+}

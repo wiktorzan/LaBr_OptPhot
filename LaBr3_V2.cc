@@ -29,6 +29,7 @@
 #include "EventAction.hh"
 #include "PhysicsList.hh"
 #include "RunAction.hh"
+#include "TrackingAction.hh"
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
@@ -82,10 +83,11 @@ int main(int argc,char** argv) {
 
 
   
-  runManager->SetUserAction(new PrimaryGeneratorAction);
-  runManager->SetUserAction(new RunAction);
+  runManager->SetUserAction(new PrimaryGeneratorAction());
+  runManager->SetUserAction(new RunAction());
   runManager->SetUserAction(new EventAction(&evNumber));
   runManager->SetUserAction(new SteppingAction(&evNumber, fileNameAdd));
+  runManager->SetUserAction(new TrackingAction());
   
   runManager->Initialize(); 
   G4UImanager* UImanager = G4UImanager::GetUIpointer();

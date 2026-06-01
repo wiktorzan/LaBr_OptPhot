@@ -42,10 +42,18 @@ include_directories(${PROJECT_SOURCE_DIR}/include
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
+# ===== ROOT DICTIONARY =====
+ROOT_GENERATE_DICTIONARY(
+    G__MyDict
+    include/HistoManager.hh
+    LINKDEF include/LinkDef.h
+)
+
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(LaBr3_V2 LaBr3_V2.cc ${sources} ${headers})
+add_executable(LaBr3_V2 LaBr3_V2.cc ${sources} ${headers} G__MyDict.cxx)
+add_library(MyDict SHARED G__MyDict.cxx)
 target_link_libraries(LaBr3_V2 ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 #----------------------------------------------------------------------------

@@ -26,6 +26,8 @@
 #ifndef HistoManager_h
 #define HistoManager_h 1
 
+#
+
 #include "Analysis.hh"
 
 #include "globals.hh"
@@ -33,9 +35,47 @@
 #include "G4Track.hh"
 #include "G4Run.hh"
 
+#include "TH1I.h"
+#include "TFile.h"
+#include "TTree.h"
+
 enum HistoId {
   ElectronEnergyHist = 0,
-  GammaDepositedEnergyHist
+  GammaDepositedEnergyHist,
+  PhotonEnergyHist,
+  GammaElectronEnergy,
+  GammaPhotonEnergy,
+  PhotonInSIPMCount
+};
+
+struct GammaData{
+  G4int trackID;
+  G4double eDep;
+  G4int creatorProcess;
+  G4int interactionProcess;
+  G4int endVolume;
+  G4double posX;
+  G4double posY;
+  G4double posZ;
+
+  ClassDef(GammaData, 4);
+};
+
+struct PhotonData{
+  G4int trackID;
+  G4int process;
+  G4double posX;
+  G4double posY;
+  G4double posZ;
+  G4int copyNo;
+
+  ClassDef(PhotonData, 1);
+};
+
+struct VetoData{
+  G4int trackID;
+  G4int copyNo;
+  ClassDef(VetoData, 1);
 };
 
 class HistoManager
@@ -46,8 +86,9 @@ public:
 
   void BeginOfRun(const G4Run* run);
   void EndOfRun();
-  void BeginOfEvent();
-  void EndOfEvent();
+  void BeginOfEvent(const G4Event* evt);
+  void EndOfEvent(const G4Event* evt);
+  void UserSteppingAction(const G4Step* step);
 
   void Initialize();
   void Close();
@@ -55,12 +96,29 @@ public:
 
 
   void TrackingAction(const G4Track* track);
+  void PostUserTrackingAction(const G4Track* track);
+
+  G4int EncodeProcess(const G4String& processName);
+  G4int EncodeVolume(const G4String& volumeName);
 
 private:
   HistoManager();
   static HistoManager* fManager;
 
   double fGammaDepositedEnergy;
+  double fGammaElectronEnergy;
+  double fGammaPhotonEnergy;
+  double fPhotonInSIPMCount;
+
+  TH1I* fPhotonEndingVolume;
+  TFile* fOutputFile;
+
+  //Event tree variables
+  TTree* fOutputTree;
+  G4int fTreeEventID;
+  std::vector<struct GammaData> fTreeGammaTrack;
+  std::vector<struct PhotonData> fTreePhotons;
+  std::vector<struct VetoData> fTreeVetoNr;
 };
 
 #endif

@@ -14,6 +14,7 @@ public:
     ~TrackingAction() override;
 
     void PreUserTrackingAction(const G4Track* track) override;
+    void PostUserTrackingAction(const G4Track* track) override;
     
     
 private:

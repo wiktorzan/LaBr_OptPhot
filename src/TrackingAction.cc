@@ -76,3 +76,8 @@ void TrackingAction::PreUserTrackingAction(const G4Track* track)
     HistoManager::GetPointer()->TrackingAction(track);
 
 }
+
+void TrackingAction::PostUserTrackingAction(const G4Track* track)
+{
+    HistoManager::GetPointer()->PostUserTrackingAction(track);
+}

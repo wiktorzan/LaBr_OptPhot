@@ -2,6 +2,7 @@
 #include "DetectorConstruction.hh"
 #include "SteppingAction.hh"
 #include "EventAction.hh"
+#include "HistoManager.hh"
 
 #include "G4GeneralParticleSource.hh"
 #include "G4ParticleDefinition.hh"
@@ -62,6 +63,8 @@ SteppingAction::~SteppingAction()
 
 void SteppingAction::UserSteppingAction(const G4Step* aStep)
 {
+  HistoManager::GetPointer()->UserSteppingAction(aStep);
+
   if (fout == NULL) {
     InitOutput();
   }

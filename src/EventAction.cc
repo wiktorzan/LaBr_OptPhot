@@ -32,10 +32,10 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
   if (eventID %  PrintModulo == 0)
     G4cout << "\n---> Begin of Event: " << eventID << G4endl;
 
-  HistoManager::GetPointer()->BeginOfEvent();
+  HistoManager::GetPointer()->BeginOfEvent(evt);
 }
 
 void EventAction::EndOfEventAction(const G4Event* evt)
 {
-  HistoManager::GetPointer()->EndOfEvent();
+  HistoManager::GetPointer()->EndOfEvent(evt);
 }

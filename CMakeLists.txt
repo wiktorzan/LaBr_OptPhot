@@ -21,6 +21,10 @@ endif()
 #
 include(${Geant4_USE_FILE})
 
+set(nlohmann_json_DIR "/hac/home/wzantowicz/libs/json-install/share/cmake/nlohmann_json/")
+find_package(nlohmann_json REQUIRED)
+
+
 find_package(ROOT REQUIRED)
 message(STATUS "ROOT version: ${ROOT_VERSION}")
 if(ROOT_FOUND AND ROOT_VERSION VERSION_LESS "6.0")

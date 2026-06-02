@@ -100,8 +100,12 @@ public:
 
   G4int EncodeProcess(const G4String& processName);
   G4int EncodeVolume(const G4String& volumeName);
+  void SetSeedAndTime(std::string str){
+    seedAndTime = str;
+  }
 
 private:
+  std::string seedAndTime;
   HistoManager();
   static HistoManager* fManager;
 
@@ -116,6 +120,8 @@ private:
   //Event tree variables
   TTree* fOutputTree;
   G4int fTreeEventID;
+  G4double fTreeTotalEnergy;
+  G4double fTreeBGOTotalEnergy;
   std::vector<struct GammaData> fTreeGammaTrack;
   std::vector<struct PhotonData> fTreePhotons;
   std::vector<struct VetoData> fTreeVetoNr;

@@ -39,6 +39,7 @@
 #include "G4UItcsh.hh"
 
 #include "Randomize.hh"
+#include "HistoManager.hh"
 
 #include <sstream>
 #include <unistd.h>
@@ -66,6 +67,8 @@ int main(int argc,char** argv) {
   ss << std::put_time( &tm, format.c_str() );
 
   std::string seedAndTime = ss.str() + "_" + std::to_string(seed);
+
+  HistoManager::GetPointer()->SetSeedAndTime(seedAndTime);
   
   G4RunManager * runManager = new G4RunManager;
   runManager->SetUserInitialization(new DetectorConstruction);

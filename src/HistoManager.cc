@@ -89,6 +89,8 @@ void HistoManager::BeginOfRun(const G4Run* run)
   // fTreeVetoNr = std::vector<struct  VetoData>();
 
   fOutputTree->Branch("EventNr", &fTreeEventID, "EventNr/I");
+  fOutputTree->Branch("TotalEnergy", &fTreeTotalEnergy, "TotalEnergy/D");
+  fOutputTree->Branch("BGOTotalEnergy", &fTreeBGOTotalEnergy, "BGOTotalEnergy/D");
   fOutputTree->Branch("GammaTrack", &fTreeGammaTrack);
   fOutputTree->Branch("Photons", &fTreePhotons);
   fOutputTree->Branch("VetoNr", &fTreeVetoNr);
@@ -110,6 +112,8 @@ void HistoManager::EndOfRun()
 void HistoManager::BeginOfEvent(const G4Event* evt)
 {
   fTreeEventID = evt->GetEventID();
+  fTreeTotalEnergy = 0.;
+  fTreeBGOTotalEnergy = 0.;
   fTreeGammaTrack.clear();
   fTreePhotons.clear();
   fTreeVetoNr.clear();
@@ -184,7 +188,20 @@ void HistoManager::TrackingAction(const G4Track* track)
 void HistoManager::UserSteppingAction(const G4Step* step)
 {
   bool isGamma = step->GetTrack()->GetDefinition() == G4Gamma::GammaDefinition();
+  bool isOpticalPhoton = step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition();
   bool isVeto = step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "BGO";
+  bool isLaBr3 = step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "Physi_LaBr3";
+  bool isBGO = step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "BGO";
+
+  if(isLaBr3 && !isOpticalPhoton)
+  {
+    fTreeTotalEnergy += step->GetTotalEnergyDeposit() / keV;
+  }
+
+  if(isBGO && !isOpticalPhoton)
+  {
+    fTreeBGOTotalEnergy += step->GetTotalEnergyDeposit() / keV;
+  }
 
   if(isGamma)
   {
@@ -219,7 +236,6 @@ void HistoManager::UserSteppingAction(const G4Step* step)
     vetoData.trackID = step->GetTrack()->GetTrackID();
     vetoData.copyNo = step->GetPreStepPoint()->GetTouchableHandle()->GetReplicaNumber(1);
     fTreeVetoNr.push_back(vetoData);
-
   }
 }
 

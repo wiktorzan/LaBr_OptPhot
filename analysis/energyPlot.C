@@ -6,7 +6,7 @@
 #include "TCanvas.h"
 #include "TLegend.h"
 
-#define SMEAR_ENERGY false
+#define SMEAR_ENERGY true 
 
 std::string DecodeProcess(int code);
 std::string DecodeVolume(int id);
@@ -46,11 +46,11 @@ int energyPlot()
 
   TCanvas* canvas = new TCanvas("Canvas", "BGO Veto Analysis", 800, 600);
   TCanvas* canvas2 = new TCanvas("Canvas2", "Escaped gamma Analysis", 800, 600);
-  TH1D* EnergyWithShield = new TH1D("EnergyWithShield", "Energy per event with active veto; Energy[keV]; Counts", 100, 0., 520);
-  TH1D* EnergyVetoed = new TH1D("EnergyVetoed", "Energy per event Veto; Energy[keV]; Counts", 100, 0., 520);
-  TH1D* Energy = new TH1D("Energy", "Energy per event; Energy[keV]; Counts", 100, 0., 520);
-  TH1D* EnergyEscaped = new TH1D("EnergyEscaped", "Energy per event where gamma escaped; Energy[keV]; Counts", 100, 0., 520);
-  TH1D* EnergyNotEscaped = new TH1D("EnergyNotEscaped", "Energy per event where gamma did not escape; Energy[keV]; Counts", 100, 0., 520);
+  TH1D* EnergyWithShield = new TH1D("EnergyWithShield", "Energy per event with active veto; Energy[keV]; Counts", 100, 0., 680);
+  TH1D* EnergyVetoed = new TH1D("EnergyVetoed", "Energy per event Veto; Energy[keV]; Counts", 100, 0., 680);
+  TH1D* Energy = new TH1D("Energy", "Energy per event; Energy[keV]; Counts", 100, 0., 680);
+  TH1D* EnergyEscaped = new TH1D("EnergyEscaped", "Energy per event where gamma escaped; Energy[keV]; Counts", 100, 0., 680);
+  TH1D* EnergyNotEscaped = new TH1D("EnergyNotEscaped", "Energy per event where gamma did not escape; Energy[keV]; Counts", 100, 0., 680);
 
   Long64_t nEntries = tree->GetEntries();
   for (Long64_t i = 0; i < nEntries; ++i) {
@@ -106,6 +106,7 @@ int energyPlot()
   EnergyVetoed->SetLineWidth(2);
   EnergyVetoed->Draw("SAME");
 
+  canvas->SetLogy();
   TLegend* legend = new TLegend(0.2, 0.7, 0.7, 0.9);
   legend->AddEntry(Energy, "All Events", "l");
   legend->AddEntry(EnergyWithShield, "Events with Active Shield", "l");
@@ -123,10 +124,11 @@ int energyPlot()
   EnergyNotEscaped->SetLineColor(kCyan);
   EnergyNotEscaped->SetLineWidth(2);
   EnergyNotEscaped->Draw("SAME");
+  canvas2->SetLogy();
   TLegend* legend2 = new TLegend(0.2, 0.7, 0.7, 0.9);
   legend2->AddEntry(Energy, "All Events", "l");
-  legend2->AddEntry(EnergyWithShield, "Events with gamma escaped", "l");
-  legend2->AddEntry(EnergyVetoed, "Events where gamma did not escape LaBr3", "l");
+  legend2->AddEntry(EnergyEscaped, "Events with gamma escaped", "l");
+  legend2->AddEntry(EnergyNotEscaped, "Events where gamma did not escape LaBr3", "l");
   legend2->Draw();
 
   canvas2->SaveAs("energyPlots2.pdf");

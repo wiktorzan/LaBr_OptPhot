@@ -29,8 +29,14 @@ HistoManager* HistoManager::GetPointer()
 HistoManager::HistoManager()
 {
   auto analysisManager = G4AnalysisManager::Instance();
-  analysisManager->OpenFile("histomanager_out.root");
-  fOutputFile = new TFile("histomanager_out2.root", "RECREATE");
+  analysisManager->OpenFile("histomanager_out.root"); 
+
+  std::string filename =
+    "histomanager_out2_" +
+    std::to_string(std::time(nullptr)) +
+    ".root";
+
+  fOutputFile = new TFile(filename.c_str(), "RECREATE");
   Initialize();
 }
 

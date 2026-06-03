@@ -51,6 +51,7 @@ enum HistoId {
 struct GammaData{
   G4int trackID;
   G4double eDep;
+  G4double time;
   G4int creatorProcess;
   G4int interactionProcess;
   G4int endVolume;
@@ -58,7 +59,7 @@ struct GammaData{
   G4double posY;
   G4double posZ;
 
-  ClassDef(GammaData, 4);
+  ClassDef(GammaData, 5);
 };
 
 struct PhotonData{
@@ -75,7 +76,8 @@ struct PhotonData{
 struct VetoData{
   G4int trackID;
   G4int copyNo;
-  ClassDef(VetoData, 1);
+  G4double time;
+  ClassDef(VetoData, 2);
 };
 
 class HistoManager

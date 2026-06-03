@@ -217,6 +217,7 @@ void HistoManager::UserSteppingAction(const G4Step* step)
     struct GammaData gammaData;
     gammaData.trackID = track->GetTrackID();
     gammaData.eDep = energy / keV;
+    gammaData.time = step->GetPostStepPoint()->GetGlobalTime() / ns;
     gammaData.creatorProcess = EncodeProcess(track->GetCreatorProcess() ? track->GetCreatorProcess()->GetProcessName() : "unknown");
     gammaData.interactionProcess = EncodeProcess(step->GetPostStepPoint()->GetProcessDefinedStep() ? step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() : "unknown");
     gammaData.posX = step->GetPreStepPoint()->GetPosition().getX() / mm;
@@ -241,6 +242,7 @@ void HistoManager::UserSteppingAction(const G4Step* step)
     struct VetoData vetoData;
     vetoData.trackID = step->GetTrack()->GetTrackID();
     vetoData.copyNo = step->GetPreStepPoint()->GetTouchableHandle()->GetReplicaNumber(1);
+    vetoData.time = step->GetPostStepPoint()->GetGlobalTime() / ns;
     fTreeVetoNr.push_back(vetoData);
   }
 }

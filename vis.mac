@@ -1,3 +1,13 @@
+## Particle type, position, energy...
+/gps/particle gamma
+/gps/number 1
+/gps/pos/centre  0 0 -4.0 cm
+/gps/energy 0.662 MeV
+/gps/direction 0 0 1
+#/gps/ang/type iso
+
+
+
 # Macro file for the visualization setting in the initialization phase 
 #
 /control/verbose 2
@@ -7,24 +17,8 @@
 /vis/scene/create 
 #
 # Use these open statements to open selected visualization
-#
 # Use this open statement to create an OpenGL view:
 /vis/open OGL 600x600-0+0
-#
-# Use this open statement to create an OpenInventor view:
-/vis/open OI
-#
-# Use this open statement to create a .prim file suitable for
-# viewing in DAWN:
-#/vis/open DAWNFILE
-#
-# Use this open statement to create a .heprep file suitable for
-# viewing in HepRApp:
-#/vis/open HepRepFile
-#
-# Use this open statement to create a .wrl file suitable for
-# viewing in a VRML viewer:
-#/vis/open VRML2FILE
 #
 # Disable auto refresh and quieten vis messages whilst scene and
 # trajectories are established:
@@ -40,7 +34,7 @@
 #
 # Specify style (surface, wireframe, auxiliary edges,...)
 /vis/viewer/set/style wireframe
-/vis/viewer/set/auxiliaryEdge true
+/vis/viewer/set/auxiliaryEdge false
 /vis/viewer/set/lineSegmentsPerCircle 100
 
 # Draw smooth trajectories at end of event, showing trajectory points
@@ -54,11 +48,11 @@
 # Draw hits at end of event:
 /vis/scene/add/hits
 #
-# To draw only gammas:
+# To draw only alphas:
 #/vis/filtering/trajectories/create/particleFilter
 #/vis/filtering/trajectories/particleFilter-0/add alpha
 #
-# To invert the above, drawing all particles except gammas,
+# To invert the above, drawing all particles except alphas,
 # keep the above two lines but also add:
 #/vis/filtering/trajectories/particleFilter-0/invert true
 #
@@ -69,10 +63,10 @@
 #To select or override default colours (note: e+ is blue by default):
 /vis/modeling/trajectories/list
 /vis/modeling/trajectories/drawByParticleID-0/set e+ red
-/vis/modeling/trajectories/create/drawByCharge
-/vis/modeling/trajectories/drawByCharge-0/set 1 blue
-/vis/modeling/trajectories/drawByCharge-0/set -1 red
-/vis/modeling/trajectories/drawByCharge-0/set 0 white 
+/vis/modeling/trajectories/drawByParticleID-0/set opticalphoton yellow
+#/vis/modeling/trajectories/create/drawByCharge
+#/vis/modeling/trajectories/drawByCharge-0/set 1 blue
+#/vis/modeling/trajectories/drawByCharge-0/set -1 red
 #To superimpose all of the events from a given run:
 /vis/scene/endOfEventAction accumulate
 #

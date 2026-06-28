@@ -15,6 +15,10 @@ PhysicsList::PhysicsList() : G4VModularPhysicsList()
   G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
   auto opticalParams = G4OpticalParameters::Instance();
   opticalParams->SetScintTrackSecondariesFirst(true);
+
+  opticalParams->SetProcessActivation("Scintillation", false);
+  opticalParams->SetProcessActivation("Cerenkov", false);
+
   RegisterPhysics(opticalPhysics);
   RegisterPhysics(new G4EmLivermorePolarizedPhysics());
 }

@@ -193,9 +193,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   BGO_Y = 6.0*mm;
   BGO_Z = 60.0*mm;
 
-  G4double BGOW_X = 6.1*mm;
-  G4double BGOW_Y = 6.1*mm;
-  G4double BGOW_Z = 60.1*mm;
+  G4double BGOW_X = BGO_X + 0.1*mm;
+  G4double BGOW_Y = BGO_Y + 0.1*mm;
+  G4double BGOW_Z = BGO_Z + 0.1*mm;
 
 //Reflector
 
@@ -319,9 +319,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4VPhysicalVolume* physiBGOW;
 
   for(G4int j=0;j<28;j++) {
+    G4double radius = 28.2*mm + BGOW_Y/2;
     G4RotationMatrix* rotationMatrix = new G4RotationMatrix();
     rotationMatrix->rotateZ((j)*12.857*deg);
-    physiBGOW = new G4PVPlacement(rotationMatrix, G4ThreeVector(std::sin((j)*12.857*deg)*31.25*mm, std::cos((j)*12.857*deg)*31.25*mm, 0.*cm),
+    physiBGOW = new G4PVPlacement(rotationMatrix, G4ThreeVector(std::sin((j)*12.857*deg)*radius, std::cos((j)*12.857*deg)*radius, 0.*cm),
                     "BGOW", lBGOW, physiWorld, false, j);
   }
 

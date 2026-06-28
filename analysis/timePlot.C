@@ -18,7 +18,8 @@ int timePlot(TString fileName = "histomanager_out2.root")
     std::cerr << "Error opening file!" << std::endl;
     return -1;
   }
-  TFile* outFile = new TFile("timePlots.root", "RECREATE");
+  TString outfilename  = fileName(0, fileName.Length()-5);
+  TFile* outFile = new TFile("timePlots" + outfilename + ".root", "RECREATE");
 
   TTree* tree = (TTree*)(file->Get("EventTree0"));
   if (!tree) {
@@ -42,7 +43,11 @@ int timePlot(TString fileName = "histomanager_out2.root")
   tree->SetBranchAddress("VetoNr", &vetoDataVector);
 
   TCanvas* canvas = new TCanvas("Canvas", "Timing Analysis", 800, 600);
-  TH1D* BGOTime = new TH1D("BGOTime", "Time distribution of events in BGO; Time [ns]; Counts", 100, 0., 5.);
+  TH1D* BGOTime = new TH1D("BGOTime", "Time difference between first interaction in LaBr3 and BGO; Time [ns]; Counts", 200, -1.2, 1.2);
+
+  double timeDiff =-1;
+  double timeLa = -1;
+  double timeVe = 0;
 
   Long64_t nEntries = tree->GetEntries();
   for (Long64_t i = 0; i < nEntries; ++i) {
@@ -50,9 +55,23 @@ int timePlot(TString fileName = "histomanager_out2.root")
 
     for(const auto& veto : *vetoDataVector)
     {
-      BGOTime->Fill(veto.time);
+      timeVe = veto.time;
       break; //only first interaction 
     }
+    for(const auto& gam : *gammaDataVector)
+    {
+       	if(gam.endVolume == 0){
+	timeLa = gam.time;
+        break;
+	}
+    }
+    if(timeVe!=0){
+      BGOTime->Fill(timeVe-timeLa);
+    }
+    timeVe=0;
+    timeLa=-10;
+
+    
 
   }
   
@@ -62,10 +81,10 @@ int timePlot(TString fileName = "histomanager_out2.root")
   BGOTime->Draw();
 
   // canvas->SetLogy();
-  TLegend* legend = new TLegend(0.2, 0.7, 0.7, 0.9);
+  TLegend* legend = new TLegend(0.4, 0.7, 0.7, 0.9);
   legend->AddEntry(BGOTime, "BGO Time", "l");
   legend->Draw();
-  canvas->SaveAs("timePlots.pdf");
+  canvas->SaveAs("timePlots"+outfilename +  ".pdf");
 
   outFile->cd();
   canvas->Write();
@@ -113,4 +132,3 @@ std::string DecodeVolume(int id)
         default: return "UNKNOWN";
     }
 }
-

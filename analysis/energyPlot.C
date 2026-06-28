@@ -6,21 +6,24 @@
 #include "TCanvas.h"
 #include "TLegend.h"
 
-#define SMEAR_ENERGY true 
+#define SMEAR_ENERGY false
 
 std::string DecodeProcess(int code);
 std::string DecodeVolume(int id);
 double SmearEnergy(double energy);
 
-int energyPlot()
+int energyPlot(TString filename = "histomanager_out2.root")
 {
   // TFile* file = new TFile("100k_out2.root", "READ");
-  TFile* file = new TFile("histomanager_out2.root", "READ");
+  TFile* file = new TFile(filename, "READ");
   if (!file || file->IsZombie()) {
     std::cerr << "Error opening file!" << std::endl;
     return -1;
   }
-  TFile* outFile = new TFile("energyPlots.root", "RECREATE");
+  TString outfilename = filename(0, filename.Length()-5);
+  if(SMEAR_ENERGY)
+    outfilename = outfilename + "_sm";
+  TFile* outFile = new TFile("energyPlots"+outfilename+".root", "RECREATE");
 
   TTree* tree = (TTree*)(file->Get("EventTree0"));
   if (!tree) {
@@ -46,11 +49,11 @@ int energyPlot()
 
   TCanvas* canvas = new TCanvas("Canvas", "BGO Veto Analysis", 800, 600);
   TCanvas* canvas2 = new TCanvas("Canvas2", "Escaped gamma Analysis", 800, 600);
-  TH1D* EnergyWithShield = new TH1D("EnergyWithShield", "Energy per event with active veto; Energy[keV]; Counts", 100, 0., 680);
-  TH1D* EnergyVetoed = new TH1D("EnergyVetoed", "Energy per event Veto; Energy[keV]; Counts", 100, 0., 680);
-  TH1D* Energy = new TH1D("Energy", "Energy per event; Energy[keV]; Counts", 100, 0., 680);
-  TH1D* EnergyEscaped = new TH1D("EnergyEscaped", "Energy per event where gamma escaped; Energy[keV]; Counts", 100, 0., 680);
-  TH1D* EnergyNotEscaped = new TH1D("EnergyNotEscaped", "Energy per event where gamma did not escape; Energy[keV]; Counts", 100, 0., 680);
+  TH1D* EnergyWithShield = new TH1D("EnergyWithShield", "Energy per event with active veto; Energy[keV]; Counts", 100, 0., 1350);
+  TH1D* EnergyVetoed = new TH1D("EnergyVetoed", "Energy per event Veto; Energy[keV]; Counts", 100, 0., 1350);
+  TH1D* Energy = new TH1D("Energy", "Energy per event; Energy[keV]; Counts", 100, 0., 1350);
+  TH1D* EnergyEscaped = new TH1D("EnergyEscaped", "Energy per event where gamma escaped; Energy[keV]; Counts", 100, 0., 1350);
+  TH1D* EnergyNotEscaped = new TH1D("EnergyNotEscaped", "Energy per event where gamma did not escape; Energy[keV]; Counts", 100, 0., 1350);
 
   Long64_t nEntries = tree->GetEntries();
   for (Long64_t i = 0; i < nEntries; ++i) {
@@ -112,7 +115,8 @@ int energyPlot()
   legend->AddEntry(EnergyWithShield, "Events with Active Shield", "l");
   legend->AddEntry(EnergyVetoed, "Vetoed Events", "l");
   legend->Draw();
-  canvas->SaveAs("energyPlots.pdf");
+  canvas->SaveAs("energyPlots_"+outfilename+".pdf");
+
 
   canvas2->cd();
   Energy->SetLineColor(kBlack);
@@ -131,7 +135,7 @@ int energyPlot()
   legend2->AddEntry(EnergyNotEscaped, "Events where gamma did not escape LaBr3", "l");
   legend2->Draw();
 
-  canvas2->SaveAs("energyPlots2.pdf");
+  canvas2->SaveAs("energyPlots2_"+outfilename+".pdf");
 
 
 

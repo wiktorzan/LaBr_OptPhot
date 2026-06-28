@@ -3,6 +3,7 @@
 #define DetectorConstruction_h 1
 
 #include "G4VUserDetectorConstruction.hh"
+#include "DetectorMessenger.hh"
 
 class G4VPhysicalVolume;
 
@@ -13,8 +14,12 @@ public:
   ~DetectorConstruction();
 
   G4VPhysicalVolume* Construct();
-  
+
+  void SetBGO_Y(G4double val) { BGO_Y = val; }
+
 private:
+  DetectorMessenger* fDetectorMessenger;
+
   G4double WorldSize;
   G4double LaBr3Rmin;
   G4double LaBr3Rmax;

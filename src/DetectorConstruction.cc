@@ -1,4 +1,5 @@
 #include "DetectorConstruction.hh"
+#include "DetectorMessenger.hh"
 
 #include "G4LogicalBorderSurface.hh"
 #include "G4OpticalSurface.hh"
@@ -18,10 +19,14 @@
 using namespace CLHEP;
 
 DetectorConstruction::DetectorConstruction()
-{}
+{
+  fDetectorMessenger = new DetectorMessenger(this);
+}
 
 DetectorConstruction::~DetectorConstruction()
-{}
+{
+  delete fDetectorMessenger;
+}
 
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
@@ -190,7 +195,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   SiPM_Z = 0.5*mm;
 
   BGO_X = 6.0*mm;
-  BGO_Y = 6.0*mm;
+  //BGO_Y i set by command 
   BGO_Z = 60.0*mm;
 
   G4double BGOW_X = BGO_X + 0.1*mm;

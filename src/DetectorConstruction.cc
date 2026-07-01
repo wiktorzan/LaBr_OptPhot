@@ -333,20 +333,20 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4LogicalVolume* lBGOW = new G4LogicalVolume(BGO_barW,AluR,"BGOW");
   G4VPhysicalVolume* physiBGOW;
 
-  // for(G4int j=0;j<28;j++) {
-  //   G4double radius = 28.2*mm + BGOW_Y/2;
-  //   G4RotationMatrix* rotationMatrix = new G4RotationMatrix();
-  //   rotationMatrix->rotateZ((j)*12.857*deg);
-  //   physiBGOW = new G4PVPlacement(rotationMatrix, G4ThreeVector(std::sin((j)*12.857*deg)*radius, std::cos((j)*12.857*deg)*radius, 0.*cm),
-  //                   "BGOW", lBGOW, physiWorld, false, j);
-  // }
+  for(G4int j=0;j<28;j++) {
+    G4double radius = 28.2*mm + BGOW_Y/2;
+    G4RotationMatrix* rotationMatrix = new G4RotationMatrix();
+    rotationMatrix->rotateZ((j)*12.857*deg);
+    physiBGOW = new G4PVPlacement(rotationMatrix, G4ThreeVector(std::sin((j)*12.857*deg)*radius, std::cos((j)*12.857*deg)*radius, 0.*cm),
+                    "BGOW", lBGOW, physiWorld, false, j);
+  }
 
 //BGO
 
   G4Box* BGO_bar = new G4Box("BGO", BGO_X/2, BGO_Y/2, BGO_Z/2);
   G4LogicalVolume* lBGO = new G4LogicalVolume(BGO_bar, BGOmat, "BGO");
-  // G4VPhysicalVolume* physiBGO = new G4PVPlacement(0, G4ThreeVector(std::sin((0)*12.857*deg)*0.*mm, std::cos((0)*12.857*deg)*0.*mm, 0.*cm),
-  //                         "BGO", lBGO, physiBGOW, false, 0);
+  G4VPhysicalVolume* physiBGO = new G4PVPlacement(0, G4ThreeVector(std::sin((0)*12.857*deg)*0.*mm, std::cos((0)*12.857*deg)*0.*mm, 0.*cm),
+                          "BGO", lBGO, physiBGOW, false, 0);
 
 //------------------------------------------------------
 // Surfaces and boundary processes

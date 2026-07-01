@@ -6,6 +6,7 @@
 /gps/direction 0 0 1
 #/gps/ang/type iso
 
+/geometry/test/run
 
 
 # Macro file for the visualization setting in the initialization phase 
@@ -93,7 +94,7 @@
 /vis/geometry/set/visibility World 0 false
 /vis/geometry/set/visibility Envelope 0 false
 /vis/geometry/set/visibility SiPM1_P2 ! true
-/vis/geometry/set/forceSolid World
+/vis/geometry/set/forceSolid all
 #/vis/geometry/set/colour SiPM1_P2 blue
 #/vis/geometry/set/colour PlasticScintillator1 red
 #/vis/geometry/set/colour PMMALG

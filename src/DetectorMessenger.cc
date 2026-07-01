@@ -18,7 +18,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* detector) : fDetector
     fBGO_YCmd->SetDefaultUnit("mm");
     fBGO_YCmd->SetDefaultValue(6.0);
 
-    fDetector->SetBGO_Y(20.0*mm); // Set the default value in the detector construction
+    fDetector->SetBGO_Y(6.0*mm); // Set the default value in the detector construction
 }
 
 DetectorMessenger::~DetectorMessenger()

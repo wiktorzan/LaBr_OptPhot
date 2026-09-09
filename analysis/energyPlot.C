@@ -182,7 +182,7 @@ void energyPlot(TString filename, double maxEnergy, bool smearEnergy, bool plotG
     tree->GetEntry(i);
     double ene = totalEnergy;
     if(ene <= 0) continue;
-    if(SmearEnergy){ene = SmearEnergy(totalEnergy);}
+    if(smearEnergy){ene = SmearEnergy(totalEnergy);}
 
 
     bool escapeEvent = false;

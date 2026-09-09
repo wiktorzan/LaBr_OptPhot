@@ -49,35 +49,35 @@ enum HistoId {
 };
 
 struct GammaData{
-  G4int trackID;
-  G4double eDep;
-  G4double time;
-  G4int creatorProcess;
-  G4int interactionProcess;
-  G4int endVolume;
-  G4double posX;
-  G4double posY;
-  G4double posZ;
+  int trackID;
+  double eDep;
+  double time;
+  int creatorProcess;
+  int interactionProcess;
+  int endVolume;
+  double posX;
+  double posY;
+  double posZ;
 
-  ClassDef(GammaData, 5);
+  ClassDef(GammaData, 6);
 };
 
 struct PhotonData{
-  G4int trackID;
-  G4int process;
-  G4double posX;
-  G4double posY;
-  G4double posZ;
-  G4int copyNo;
+  int trackID;
+  int process;
+  double posX;
+  double posY;
+  double posZ;
+  int copyNo;
 
-  ClassDef(PhotonData, 1);
+  ClassDef(PhotonData, 2);
 };
 
 struct VetoData{
-  G4int trackID;
-  G4int copyNo;
-  G4double time;
-  ClassDef(VetoData, 2);
+  int trackID;
+  int copyNo;
+  double time;
+  ClassDef(VetoData, 3);
 };
 
 class HistoManager

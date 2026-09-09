@@ -195,9 +195,11 @@ void HistoManager::UserSteppingAction(const G4Step* step)
 {
   bool isGamma = step->GetTrack()->GetDefinition() == G4Gamma::GammaDefinition();
   bool isOpticalPhoton = step->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition();
-  bool isVeto = step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "BGO";
-  bool isLaBr3 = step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "Physi_LaBr3";
   bool isBGO = step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "BGO";
+  bool isLaBr3 = step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "Physi_LaBr3";
+  bool isBGOback = step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "BGO_back";
+
+  bool isVeto = isBGO || isBGOback;
 
   if(isLaBr3 && !isOpticalPhoton)
   {
@@ -230,7 +232,7 @@ void HistoManager::UserSteppingAction(const G4Step* step)
   if(isGamma && isVeto && step->GetTotalEnergyDeposit() > 0)
   {
     auto trackID = step->GetTrack()->GetTrackID();
-    auto copyNo = step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
+    auto copyNo = step->GetPreStepPoint()->GetTouchableHandle()->GetReplicaNumber(1);
 
     for(const auto& veto : fTreeVetoNr)
     {
@@ -241,7 +243,13 @@ void HistoManager::UserSteppingAction(const G4Step* step)
     }
     struct VetoData vetoData;
     vetoData.trackID = step->GetTrack()->GetTrackID();
-    vetoData.copyNo = step->GetPreStepPoint()->GetTouchableHandle()->GetReplicaNumber(1);
+    if(isBGOback)
+    {
+      vetoData.copyNo = -1; // Special value for BGO_back
+    }else
+    {
+      vetoData.copyNo = step->GetPreStepPoint()->GetTouchableHandle()->GetReplicaNumber(1);
+    }
     vetoData.time = step->GetPostStepPoint()->GetGlobalTime() / ns;
     fTreeVetoNr.push_back(vetoData);
   }

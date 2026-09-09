@@ -212,6 +212,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double BGOW_Y = BGO_Y + 0.1*mm;
   G4double BGOW_Z = BGO_Z + 0.1*mm;
 
+  G4double BGO_back_R = 2*2.54*cm;
+  G4double BGO_back_thickness = 20*mm;
+  G4double BGO_back_SiMP_dist = 3*cm;
+
+  G4double BGOW_back_R = BGO_back_R + 0.1*mm;
+  G4double BGOW_back_thickness = BGO_back_thickness + 0.1*mm;
+
 //Reflector
 
   G4Tubs* reflector_al = new G4Tubs("Reflector", Reflector_Rmin, Reflector_Rmax,Reflector_Z/2, StartPhi, DeltaPhi);
@@ -347,6 +354,18 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4LogicalVolume* lBGO = new G4LogicalVolume(BGO_bar, BGOmat, "BGO");
   G4VPhysicalVolume* physiBGO = new G4PVPlacement(0, G4ThreeVector(std::sin((0)*12.857*deg)*0.*mm, std::cos((0)*12.857*deg)*0.*mm, 0.*cm),
                           "BGO", lBGO, physiBGOW, false, 0);
+
+// Back BGO wrapping
+  G4Tubs* BGOW_back = new G4Tubs("BGOW_back", 0*cm, BGOW_back_R, BGOW_back_thickness/2, StartPhi, DeltaPhi);
+  G4LogicalVolume* lBGOW_back = new G4LogicalVolume(BGOW_back, AluR, "bgowback");
+  G4VPhysicalVolume* physiBGOW_back = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, Reflector_Z/2 + OptGelThickness + SiPM_Z + BGOW_back_thickness/2 + BGO_back_SiMP_dist),
+                             "BGOWback", lBGOW_back, physiWorld, false, 0, true);
+
+// Back BGO
+  G4Tubs* BGO_back = new G4Tubs("BGO_back", 0*cm, BGO_back_R, BGO_back_thickness/2, StartPhi, DeltaPhi);
+  G4LogicalVolume* lBGO_back = new G4LogicalVolume(BGO_back, BGOmat, "BGO_back");
+  G4VPhysicalVolume* physiBGO_back = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, 0*cm),
+                             "BGO_back", lBGO_back, physiBGOW_back, false, 0, true);
 
 //------------------------------------------------------
 // Surfaces and boundary processes
